@@ -2,6 +2,8 @@ package be.jeffcheasey88.peeratcode;
 
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.sql.Connection;
+import java.sql.DriverManager;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -16,6 +18,12 @@ import be.jeffcheasey88.peeratcode.webserver.Router;
 public class Main {
 	
 	public static void main(String[] args) throws Exception {
+		Configuration config = new Configuration("config.txt");
+		config.load();
+		
+		Class.forName("com.mysql.cj.jdbc.Driver");
+		Connection con = DriverManager.getConnection("jdbc:mysql://"+config.getDbHost()+":"+config.getDbPort()+"/"+config.getDbDatabase()+"",config.getDbUser(), config.getDbPassword());
+		
 		Router router = new Router();
 		
 		router.setDefault(new Response(){
@@ -34,6 +42,7 @@ public class Main {
 		
 		initRoutes(router);
 		
+		
 		ServerSocket server = new ServerSocket(80);
 		
 		while(!server.isClosed()){
@@ -41,8 +50,8 @@ public class Main {
 			Client client = new Client(socket, router);
 			client.start();
 		}
-	}
-	
+		
+	}	
 	private static void initRoutes(Router router){
 		router.register(new PuzzleList());
 	}
