@@ -40,7 +40,7 @@ public class Main {
 			}
 		});
 		
-		initRoutes(router);
+		initRoutes(router, con);
 		
 		
 		ServerSocket server = new ServerSocket(80);
@@ -52,8 +52,8 @@ public class Main {
 		}
 		
 	}	
-	private static void initRoutes(Router router){
-		router.register(new PuzzleList());
+	private static void initRoutes(Router router, Connection con){
+		router.register(new PuzzleList(con));
 	}
 
 }
