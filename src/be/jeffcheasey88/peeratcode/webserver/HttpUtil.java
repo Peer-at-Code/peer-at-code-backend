@@ -4,8 +4,6 @@ import java.security.MessageDigest;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.xml.bind.DatatypeConverter;
-
 import org.json.simple.parser.JSONParser;
 
 public class HttpUtil {
@@ -32,7 +30,7 @@ public class HttpUtil {
 		writer.write("Connection: Upgrade\n");
 		writer.write("Upgrade: websocket\n");
 		writer.write("Sec-WebSocket-Accept: "+
-				DatatypeConverter.printBase64Binary(
+				printBase64Binary(
 						MessageDigest.getInstance("SHA-1").
 							digest((key+"258EAFA5-E914-47DA-95CA-C5AB0DC85B11").getBytes("UTF-8")))+"\n");
 		writer.write("\n");
@@ -257,4 +255,56 @@ public class HttpUtil {
 	    return " ";
 	  }
 
+	
+	//From javax.xml.bind.DatatypeConverter
+	private static String printBase64Binary(byte[] array){
+		char[] arrayOfChar = new char[(array.length + 2) / 3 * 4];
+	    int i = _printBase64Binary(array, 0, array.length, arrayOfChar, 0);
+	    assert i == arrayOfChar.length;
+	    return new String(arrayOfChar);
+	}
+	
+	private static int _printBase64Binary(byte[] paramArrayOfbyte, int paramInt1, int paramInt2, char[] paramArrayOfchar, int paramInt3) {
+	    int i = paramInt2;
+	    int j;
+	    for (j = paramInt1; i >= 3; j += 3) {
+	      paramArrayOfchar[paramInt3++] = encode(paramArrayOfbyte[j] >> 2);
+	      paramArrayOfchar[paramInt3++] = encode((paramArrayOfbyte[j] & 0x3) << 4 | paramArrayOfbyte[j + 1] >> 4 & 0xF);
+	      paramArrayOfchar[paramInt3++] = encode((paramArrayOfbyte[j + 1] & 0xF) << 2 | paramArrayOfbyte[j + 2] >> 6 & 0x3);
+	      paramArrayOfchar[paramInt3++] = encode(paramArrayOfbyte[j + 2] & 0x3F);
+	      i -= 3;
+	    } 
+	    if (i == 1) {
+	      paramArrayOfchar[paramInt3++] = encode(paramArrayOfbyte[j] >> 2);
+	      paramArrayOfchar[paramInt3++] = encode((paramArrayOfbyte[j] & 0x3) << 4);
+	      paramArrayOfchar[paramInt3++] = '=';
+	      paramArrayOfchar[paramInt3++] = '=';
+	    } 
+	    if (i == 2) {
+	      paramArrayOfchar[paramInt3++] = encode(paramArrayOfbyte[j] >> 2);
+	      paramArrayOfchar[paramInt3++] = encode((paramArrayOfbyte[j] & 0x3) << 4 | paramArrayOfbyte[j + 1] >> 4 & 0xF);
+	      paramArrayOfchar[paramInt3++] = encode((paramArrayOfbyte[j + 1] & 0xF) << 2);
+	      paramArrayOfchar[paramInt3++] = '=';
+	    } 
+	    return paramInt3;
+	  }
+	
+	private static char encode(int paramInt) {
+	    return encodeMap[paramInt & 0x3F];
+	  }
+	private static final char[] encodeMap = initEncodeMap();
+	
+	private static char[] initEncodeMap() {
+	    char[] arrayOfChar = new char[64];
+	    byte b;
+	    for (b = 0; b < 26; b++)
+	      arrayOfChar[b] = (char)(65 + b); 
+	    for (b = 26; b < 52; b++)
+	      arrayOfChar[b] = (char)(97 + b - 26); 
+	    for (b = 52; b < 62; b++)
+	      arrayOfChar[b] = (char)(48 + b - 52); 
+	    arrayOfChar[62] = '+';
+	    arrayOfChar[63] = '/';
+	    return arrayOfChar;
+	  }
 }

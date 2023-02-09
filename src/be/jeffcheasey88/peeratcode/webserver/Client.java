@@ -20,7 +20,7 @@ public class Client extends Thread{
 	@Override
 	public void run(){
 		try {
-			String[] headers = reader.readLine().split("\s");
+			String[] headers = reader.readLine().split("\\s");
 			System.out.println(Arrays.toString(headers));
 			router.exec(headers[0], headers[1], reader, writer);
 		} catch (Exception e) {
