@@ -60,7 +60,7 @@ public class PuzzleList implements Response{
 
 	@Override
 	public Pattern getPattern(){
-		return Pattern.compile("^\\/puzzle\\/?$");
+		return Pattern.compile("^\\/puzzles\\/?$");
 	}
 
 }
