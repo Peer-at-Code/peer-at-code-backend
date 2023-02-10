@@ -12,10 +12,10 @@ import java.util.List;
 
 public class DatabaseRepository {
 	
-	private static final String SPECIFIC_PUZZLE_QUERY = "SELECT * FROM puzzle WHERE id_puzzle = ?";
-	private static final String SPECIFIC_CHAPTER_QUERY = "SELECT * FROM chapter WHERE id_chapter = ?";
-	private static final String PUZZLES_IN_CHAPTER_QUERY = "SELECT * FROM puzzle WHERE fk_chapter = ?";
-	private static final String ALL_CHAPTERS_QUERY = "SELECT * FROM chapter";
+	private static final String SPECIFIC_PUZZLE_QUERY = "SELECT * FROM puzzles WHERE id_puzzle = ?";
+	private static final String SPECIFIC_CHAPTER_QUERY = "SELECT * FROM chapters WHERE id_chapter = ?";
+	private static final String PUZZLES_IN_CHAPTER_QUERY = "SELECT * FROM puzzles WHERE fk_chapter = ?";
+	private static final String ALL_CHAPTERS_QUERY = "SELECT * FROM chapters";
 	private final Connection con;
 
 	public DatabaseRepository(Connection con) {
