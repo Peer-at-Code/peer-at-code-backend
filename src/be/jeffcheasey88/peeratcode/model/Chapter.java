@@ -3,6 +3,7 @@ package be.jeffcheasey88.peeratcode.model;
 import java.util.List;
 
 public class Chapter {
+	
 	private int id;
 	private String name;
 	private List<Puzzle> puzzles;
@@ -37,13 +38,10 @@ public class Chapter {
 	}
 
 	@Override
-	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
-
-		Chapter chapter = (Chapter) o;
-
-		return id == chapter.id;
+	public boolean equals(Object object){
+		if(this == object) return true;
+		if(!(object instanceof Chapter)) return false;
+		return this.id == (((Chapter)object).id);
 	}
 
 	@Override

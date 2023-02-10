@@ -1,7 +1,7 @@
 package be.jeffcheasey88.peeratcode.routes;
 
 import be.jeffcheasey88.peeratcode.model.Puzzle;
-import be.jeffcheasey88.peeratcode.repository.DatabaseRepo;
+import be.jeffcheasey88.peeratcode.repository.DatabaseRepository;
 import be.jeffcheasey88.peeratcode.webserver.HttpReader;
 import be.jeffcheasey88.peeratcode.webserver.HttpUtil;
 import be.jeffcheasey88.peeratcode.webserver.HttpWriter;
@@ -13,9 +13,9 @@ import java.util.regex.Pattern;
 
 public class PuzzleElement implements Response {
 
-	private final DatabaseRepo databaseRepo;
+	private final DatabaseRepository databaseRepo;
 
-	public PuzzleElement(DatabaseRepo databaseRepo) {
+	public PuzzleElement(DatabaseRepository databaseRepo) {
 		this.databaseRepo = databaseRepo;
 	}
 

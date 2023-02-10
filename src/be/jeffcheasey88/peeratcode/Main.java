@@ -7,7 +7,10 @@ import java.sql.DriverManager;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import be.jeffcheasey88.peeratcode.routes.PuzzleList;
+import be.jeffcheasey88.peeratcode.repository.DatabaseRepository;
+import be.jeffcheasey88.peeratcode.routes.ChapterElement;
+import be.jeffcheasey88.peeratcode.routes.ChapterList;
+import be.jeffcheasey88.peeratcode.routes.PuzzleElement;
 import be.jeffcheasey88.peeratcode.webserver.Client;
 import be.jeffcheasey88.peeratcode.webserver.HttpReader;
 import be.jeffcheasey88.peeratcode.webserver.HttpUtil;
@@ -40,7 +43,7 @@ public class Main {
 			}
 		});
 		
-		initRoutes(router, con);
+		initRoutes(router, new DatabaseRepository(con));
 		
 		
 		ServerSocket server = new ServerSocket(80);
@@ -52,8 +55,10 @@ public class Main {
 		}
 		
 	}	
-	private static void initRoutes(Router router, Connection con){
-		router.register(new PuzzleList(con));
+	private static void initRoutes(Router router, DatabaseRepository repo){
+		router.register(new ChapterElement(repo));
+		router.register(new ChapterList(repo));
+		router.register(new PuzzleElement(repo));
 	}
 
 }

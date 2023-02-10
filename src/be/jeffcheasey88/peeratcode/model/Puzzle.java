@@ -1,6 +1,7 @@
 package be.jeffcheasey88.peeratcode.model;
 
 public class Puzzle {
+	
 	private int id;
 	private String name;
 	private String content;
@@ -36,13 +37,10 @@ public class Puzzle {
 	}
 
 	@Override
-	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
-
-		Puzzle puzzle = (Puzzle) o;
-
-		return id == puzzle.id;
+	public boolean equals(Object object) {
+		if(this == object) return true;
+		if(!(object instanceof Puzzle)) return false;
+		return this.id == (((Puzzle)object).id);
 	}
 
 	@Override

@@ -10,14 +10,15 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DatabaseRepo {
+public class DatabaseRepository {
+	
 	private static final String SPECIFIC_PUZZLE_QUERY = "SELECT * FROM puzzle WHERE id_puzzle = ?";
 	private static final String SPECIFIC_CHAPTER_QUERY = "SELECT * FROM chapter WHERE id_chapter = ?";
 	private static final String PUZZLES_IN_CHAPTER_QUERY = "SELECT * FROM puzzle WHERE fk_chapter = ?";
-	public static final String ALL_CHAPTERS_QUERY = "SELECT * FROM chapter";
+	private static final String ALL_CHAPTERS_QUERY = "SELECT * FROM chapter";
 	private final Connection con;
 
-	public DatabaseRepo(Connection con) {
+	public DatabaseRepository(Connection con) {
 		this.con = con;
 	}
 

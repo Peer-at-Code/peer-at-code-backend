@@ -2,7 +2,7 @@ package be.jeffcheasey88.peeratcode.routes;
 
 import be.jeffcheasey88.peeratcode.model.Chapter;
 import be.jeffcheasey88.peeratcode.model.Puzzle;
-import be.jeffcheasey88.peeratcode.repository.DatabaseRepo;
+import be.jeffcheasey88.peeratcode.repository.DatabaseRepository;
 import be.jeffcheasey88.peeratcode.webserver.HttpReader;
 import be.jeffcheasey88.peeratcode.webserver.HttpUtil;
 import be.jeffcheasey88.peeratcode.webserver.HttpWriter;
@@ -15,9 +15,9 @@ import java.util.regex.Pattern;
 
 public class ChapterElement implements Response {
 
-	private final DatabaseRepo databaseRepo;
+	private final DatabaseRepository databaseRepo;
 
-	public ChapterElement(DatabaseRepo databaseRepo) {
+	public ChapterElement(DatabaseRepository databaseRepo) {
 		this.databaseRepo = databaseRepo;
 	}
 
