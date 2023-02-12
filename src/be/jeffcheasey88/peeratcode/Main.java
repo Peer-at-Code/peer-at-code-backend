@@ -10,7 +10,9 @@ import java.util.regex.Pattern;
 import be.jeffcheasey88.peeratcode.repository.DatabaseRepository;
 import be.jeffcheasey88.peeratcode.routes.ChapterElement;
 import be.jeffcheasey88.peeratcode.routes.ChapterList;
+import be.jeffcheasey88.peeratcode.routes.Login;
 import be.jeffcheasey88.peeratcode.routes.PuzzleElement;
+import be.jeffcheasey88.peeratcode.routes.Register;
 import be.jeffcheasey88.peeratcode.webserver.Client;
 import be.jeffcheasey88.peeratcode.webserver.HttpReader;
 import be.jeffcheasey88.peeratcode.webserver.HttpUtil;
@@ -59,6 +61,8 @@ public class Main {
 		router.register(new ChapterElement(repo));
 		router.register(new ChapterList(repo));
 		router.register(new PuzzleElement(repo));
+		router.register(new Register(repo));
+		router.register(new Login(repo));
 	}
 
 }
