@@ -19,7 +19,7 @@ public class DatabaseRepo {
 	private static final String ALL_CHAPTERS_QUERY = "SELECT * FROM chapter";
 	private static final String CHECK_PSEUDO_AVAILABLE_QUERY = "SELECT * FROM user WHERE pseudo = ?";
 	private static final String CHECK_EMAIL_AVAILABLE_QUERY = "SELECT * FROM user WHERE email = ?";
-	private static final String REGISTER_QUERY = "INSERT INTO user (pseudo, email, passwd, firstname, lastname, description, `group`, avatar) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+	private static final String REGISTER_QUERY = "INSERT INTO user (pseudo, email, passwd, firstname, lastname, description, sgroup, avatar) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 	private static final String PASSWORD_FOR_EMAIL_QUERY = "SELECT passwd FROM user WHERE pseudo = ?";
 	private final Connection con;
 
@@ -152,11 +152,11 @@ public class DatabaseRepo {
 	 * @param firstname   The firstname of the user
 	 * @param lastname    The lastname of the user
 	 * @param description The description of the user
-	 * @param group       The group of the user
+	 * @param sgroup       The group of the user
 	 * @param avatar      The avatar of the user
 	 * @return True if the user was registered, false if an error occurred
 	 */
-	public boolean register(String pseudo, String email, String password, String firstname, String lastname, String description, String group, String avatar) {
+	public boolean register(String pseudo, String email, String password, String firstname, String lastname, String description, String sgroup, String avatar) {
 		Hash hash = Password.hash(password).withArgon2();
 		try {
 			PreparedStatement statement = con.prepareStatement(REGISTER_QUERY);
@@ -166,7 +166,7 @@ public class DatabaseRepo {
 			statement.setString(4, firstname);
 			statement.setString(5, lastname);
 			statement.setString(6, description);
-			statement.setString(7, group);
+			statement.setString(7, sgroup);
 			statement.setString(8, avatar);
 			return statement.executeUpdate() == 1;
 		} catch (SQLException e) {

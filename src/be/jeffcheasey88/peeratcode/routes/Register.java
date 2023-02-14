@@ -23,13 +23,21 @@ public class Register implements Response {
 		HttpUtil.skipHeaders(reader);
 		JSONObject informations = (JSONObject) HttpUtil.readJson(reader);
 		if (informations != null) {
+			boolean allFieldsFilled = informations.containsKey("pseudo") && informations.containsKey("email")
+					&& informations.containsKey("passwd") && informations.containsKey("firstname")
+					&& informations.containsKey("lastname") && informations.containsKey("description")
+					&& informations.containsKey("sgroup") && informations.containsKey("avatar");
+			if (!allFieldsFilled) {
+				HttpUtil.responseHeaders(writer, 403, "Access-Control-Allow-Origin: *");
+				return;
+			}
 			String pseudo = (String) informations.get("pseudo");
 			String email = (String) informations.get("email");
 			String password = (String) informations.get("passwd");
 			String firstname = (String) informations.get("firstname");
 			String lastname = (String) informations.get("lastname");
 			String description = (String) informations.get("description");
-			String group = (String) informations.get("group");
+			String group = (String) informations.get("sgroup");
 			String avatar = (String) informations.get("avatar");
 
 			boolean pseudoAvailable = databaseRepo.checkPseudoAvailability(pseudo);
