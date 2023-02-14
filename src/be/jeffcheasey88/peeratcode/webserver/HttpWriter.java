@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 
 public class HttpWriter{
 	
@@ -13,7 +14,7 @@ public class HttpWriter{
 	
 	public HttpWriter(Socket socket) throws Exception{
 		this.out = socket.getOutputStream();
-		this.writer = new BufferedWriter(new OutputStreamWriter(out));
+		this.writer = new BufferedWriter(new OutputStreamWriter(out, StandardCharsets.UTF_8));
 	}
 	
 	public void write(byte[] buffer) throws IOException{

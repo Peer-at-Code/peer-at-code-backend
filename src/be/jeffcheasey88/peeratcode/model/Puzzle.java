@@ -5,11 +5,17 @@ public class Puzzle {
 	private int id;
 	private String name;
 	private String content;
+	private byte[] soluce;
+	private String verify;
+	private int scoreMax;
 
-	public Puzzle(int id, String name, String content) {
+	public Puzzle(int id, String name, String content, byte[] soluce, String verify, int scoreMax){
 		this.id = id;
 		this.name = name;
 		this.content = content;
+		this.soluce = soluce;
+		this.verify = verify;
+		this.scoreMax = scoreMax;
 	}
 
 	public int getId() {
@@ -34,6 +40,30 @@ public class Puzzle {
 
 	public void setContent(String content) {
 		this.content = content;
+	}
+	
+	public byte[] getSoluce(){
+		return this.soluce;
+	}
+	
+	public void setSoluce(byte[] array){
+		this.soluce = array;
+	}
+	
+	public String getVerify(){
+		return this.verify;
+	}
+	
+	public void setVerify(String regex){
+		this.verify = regex;
+	}
+	
+	private int getScoreMax(){
+		return this.scoreMax;
+	}
+	
+	public void setScoreMax(int max){
+		this.scoreMax = max;
 	}
 
 	@Override

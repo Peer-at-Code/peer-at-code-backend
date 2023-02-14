@@ -23,7 +23,7 @@ public class DatabaseRepository {
 	}
 
 	private Puzzle makePuzzle(ResultSet puzzleResult) throws SQLException {
-		return new Puzzle(puzzleResult.getInt("id_puzzle"), puzzleResult.getString("name"), puzzleResult.getString("content"));
+		return new Puzzle(puzzleResult.getInt("id_puzzle"), puzzleResult.getString("name"), puzzleResult.getString("content"), null,"",0);
 	}
 
 	private Chapter makeChapter(ResultSet chapterResult) throws SQLException {
