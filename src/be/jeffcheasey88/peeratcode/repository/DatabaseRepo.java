@@ -2,6 +2,8 @@ package be.jeffcheasey88.peeratcode.repository;
 
 import be.jeffcheasey88.peeratcode.model.Chapter;
 import be.jeffcheasey88.peeratcode.model.Puzzle;
+import com.password4j.Hash;
+import com.password4j.Password;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -14,7 +16,11 @@ public class DatabaseRepo {
 	private static final String SPECIFIC_PUZZLE_QUERY = "SELECT * FROM puzzle WHERE id_puzzle = ?";
 	private static final String SPECIFIC_CHAPTER_QUERY = "SELECT * FROM chapter WHERE id_chapter = ?";
 	private static final String PUZZLES_IN_CHAPTER_QUERY = "SELECT * FROM puzzle WHERE fk_chapter = ?";
-	public static final String ALL_CHAPTERS_QUERY = "SELECT * FROM chapter";
+	private static final String ALL_CHAPTERS_QUERY = "SELECT * FROM chapter";
+	private static final String CHECK_PSEUDO_AVAILABLE_QUERY = "SELECT * FROM user WHERE pseudo = ?";
+	private static final String CHECK_EMAIL_AVAILABLE_QUERY = "SELECT * FROM user WHERE email = ?";
+	private static final String REGISTER_QUERY = "INSERT INTO user (pseudo, email, passwd, firstname, lastname, description, `group`, avatar) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+	private static final String PASSWORD_FOR_EMAIL_QUERY = "SELECT passwd FROM user WHERE pseudo = ?";
 	private final Connection con;
 
 	public DatabaseRepo(Connection con) {
