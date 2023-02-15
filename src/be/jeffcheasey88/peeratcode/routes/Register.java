@@ -13,9 +13,9 @@ import be.jeffcheasey88.peeratcode.webserver.Response;
 
 public class Register implements Response {
 
-	private final DatabaseRepo databaseRepo;
+	private final DatabaseRepository databaseRepo;
 
-	public Register(DatabaseRepo databaseRepo) {
+	public Register(DatabaseRepository databaseRepo) {
 		this.databaseRepo = databaseRepo;
 	}
 
@@ -44,22 +44,20 @@ public class Register implements Response {
 			boolean pseudoAvailable = databaseRepo.checkPseudoAvailability(pseudo);
 			boolean emailAvailable = databaseRepo.checkEmailAvailability(email);
 			if (pseudoAvailable && emailAvailable) {
-				boolean wellRegistered = databaseRepo.register(pseudo, email, password, firstname, lastname, description, group, avatar);
-				if (!wellRegistered) {
-					HttpUtil.responseHeaders(writer, 400, "Access-Control-Allow-Origin: *");
-					writer.write("Error while registering");
-				} else {
+				if (databaseRepo.register(pseudo, email, password, firstname, lastname, description, group, avatar)){
 					HttpUtil.responseHeaders(writer, 200, "Access-Control-Allow-Origin: *");
-					writer.write("OK");
+					return;
 				}
 			} else {
-				HttpUtil.responseHeaders(writer, 200, "Access-Control-Allow-Origin: *");
+				HttpUtil.responseHeaders(writer, 403, "Access-Control-Allow-Origin: *");
 				JSONObject error = new JSONObject();
 				error.put("username_valid", pseudoAvailable);
 				error.put("email_valid", emailAvailable);
 				writer.write(error.toJSONString());
+				return;
 			}
 		}
+		HttpUtil.responseHeaders(writer, 403, "Access-Control-Allow-Origin: *");
 	}
 
 	@Override

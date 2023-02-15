@@ -13,9 +13,9 @@ import be.jeffcheasey88.peeratcode.webserver.Response;
 
 public class Login implements Response {
 
-	private final DatabaseRepo databaseRepo;
+	private final DatabaseRepository databaseRepo;
 
-	public Login(DatabaseRepo databaseRepo) {
+	public Login(DatabaseRepository databaseRepo) {
 		this.databaseRepo = databaseRepo;
 	}
 
@@ -26,13 +26,12 @@ public class Login implements Response {
 		if (informations != null) {
 			String pseudo = (String) informations.get("pseudo");
 			String password = (String) informations.get("passwd");
-			boolean wellLogged = databaseRepo.login(pseudo, password);
-			if (!wellLogged) {
-				HttpUtil.responseHeaders(writer, 403, "Access-Control-Allow-Origin: *");
-			} else {
+			if (databaseRepo.login(pseudo, password)) {
 				HttpUtil.responseHeaders(writer, 200, "Access-Control-Allow-Origin: *");
+				return;
 			}
 		}
+		HttpUtil.responseHeaders(writer, 403, "Access-Control-Allow-Origin: *");
 	}
 
 	@Override

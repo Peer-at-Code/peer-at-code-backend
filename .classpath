@@ -4,5 +4,6 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry exported="true" kind="lib" path="json-simple-1.1.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="mysql-connector-java-8.0.28.jar"/>
+	<classpathentry exported="true" kind="lib" path="password4j-1.6.3.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
