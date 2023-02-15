@@ -11,20 +11,55 @@ import be.jeffcheasey88.peeratcode.webserver.HttpUtil;
 import be.jeffcheasey88.peeratcode.webserver.HttpWriter;
 import be.jeffcheasey88.peeratcode.webserver.Response;
 
-public class Register implements Response{
-	
-	private DatabaseRepository repo;
-	
-	public Register(DatabaseRepository repo){
-		this.repo = repo;
+public class Register implements Response {
+
+	private final DatabaseRepo databaseRepo;
+
+	public Register(DatabaseRepo databaseRepo) {
+		this.databaseRepo = databaseRepo;
 	}
 
 	@Override
 	public void exec(Matcher matcher, HttpReader reader, HttpWriter writer) throws Exception {
 		HttpUtil.skipHeaders(reader);
-		JSONObject json = (JSONObject) HttpUtil.readJson(reader);
-		
-		HttpUtil.responseHeaders(writer, 200, "Access-Control-Allow-Origin: *");
+		JSONObject informations = (JSONObject) HttpUtil.readJson(reader);
+		if (informations != null) {
+			boolean allFieldsFilled = informations.containsKey("pseudo") && informations.containsKey("email")
+					&& informations.containsKey("passwd") && informations.containsKey("firstname")
+					&& informations.containsKey("lastname") && informations.containsKey("description")
+					&& informations.containsKey("sgroup") && informations.containsKey("avatar");
+			if (!allFieldsFilled) {
+				HttpUtil.responseHeaders(writer, 403, "Access-Control-Allow-Origin: *");
+				return;
+			}
+			String pseudo = (String) informations.get("pseudo");
+			String email = (String) informations.get("email");
+			String password = (String) informations.get("passwd");
+			String firstname = (String) informations.get("firstname");
+			String lastname = (String) informations.get("lastname");
+			String description = (String) informations.get("description");
+			String group = (String) informations.get("sgroup");
+			String avatar = (String) informations.get("avatar");
+
+			boolean pseudoAvailable = databaseRepo.checkPseudoAvailability(pseudo);
+			boolean emailAvailable = databaseRepo.checkEmailAvailability(email);
+			if (pseudoAvailable && emailAvailable) {
+				boolean wellRegistered = databaseRepo.register(pseudo, email, password, firstname, lastname, description, group, avatar);
+				if (!wellRegistered) {
+					HttpUtil.responseHeaders(writer, 400, "Access-Control-Allow-Origin: *");
+					writer.write("Error while registering");
+				} else {
+					HttpUtil.responseHeaders(writer, 200, "Access-Control-Allow-Origin: *");
+					writer.write("OK");
+				}
+			} else {
+				HttpUtil.responseHeaders(writer, 200, "Access-Control-Allow-Origin: *");
+				JSONObject error = new JSONObject();
+				error.put("username_valid", pseudoAvailable);
+				error.put("email_valid", emailAvailable);
+				writer.write(error.toJSONString());
+			}
+		}
 	}
 
 	@Override
