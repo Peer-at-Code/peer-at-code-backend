@@ -7,6 +7,8 @@ import java.sql.DriverManager;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.password4j.Password;
+
 import be.jeffcheasey88.peeratcode.repository.DatabaseRepository;
 import be.jeffcheasey88.peeratcode.routes.ChapterElement;
 import be.jeffcheasey88.peeratcode.routes.ChapterList;
@@ -46,7 +48,6 @@ public class Main {
 		});
 		
 		initRoutes(router, new DatabaseRepository(con));
-		
 		
 		ServerSocket server = new ServerSocket(80);
 		

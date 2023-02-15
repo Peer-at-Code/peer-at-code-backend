@@ -163,7 +163,7 @@ public class DatabaseRepository {
 			PreparedStatement statement = con.prepareStatement(REGISTER_QUERY);
 			statement.setString(1, pseudo);
 			statement.setString(2, email);
-			statement.setString(3, hash.toString());
+			statement.setString(3, hash.getResult());
 			statement.setString(4, firstname);
 			statement.setString(5, lastname);
 			statement.setString(6, description);
