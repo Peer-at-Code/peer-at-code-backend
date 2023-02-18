@@ -29,7 +29,6 @@ public class Main {
 		config.load();
 		
 		Class.forName("com.mysql.cj.jdbc.Driver");
-		Connection con = DriverManager.getConnection("jdbc:mysql://"+config.getDbHost()+":"+config.getDbPort()+"/"+config.getDbDatabase()+"",config.getDbUser(), config.getDbPassword());
 		
 		Router router = new Router();
 		
@@ -47,7 +46,7 @@ public class Main {
 			}
 		});
 		
-		initRoutes(router, new DatabaseRepository(con));
+		initRoutes(router, new DatabaseRepository(config));
 		
 		ServerSocket server = new ServerSocket(80);
 		
