@@ -15,6 +15,13 @@ public class Configuration {
 	private String db_database;
 	private String db_password;
 	
+	private String tcp_port;
+	private String use_ssl;
+	private String ssl_keystore;
+	private String ssl_keystorePasswd;
+	
+	
+	
 	private File _file;
 	
 	public Configuration(String path){
@@ -72,5 +79,21 @@ public class Configuration {
 	
 	public String getDbPassword(){
 		return this.db_password;
+	}
+	
+	public String getSslKeystore(){
+		return this.ssl_keystore;
+	}
+	
+	public String getSslKeystorePasswd(){
+		return this.ssl_keystorePasswd;
+	}
+	
+	public int getTcpPort(){
+		return Integer.parseInt(this.tcp_port);
+	}
+	
+	public boolean useSsl(){
+		return Boolean.parseBoolean(this.use_ssl);
 	}
 }

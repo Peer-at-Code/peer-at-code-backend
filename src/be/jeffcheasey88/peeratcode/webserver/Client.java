@@ -5,7 +5,7 @@ import java.util.Arrays;
 
 public class Client extends Thread{
 	
-	private Socket socket;
+	private Socket socket; // A quoi il sert ??
 	private HttpReader reader;
 	private HttpWriter writer;
 	private Router router;
