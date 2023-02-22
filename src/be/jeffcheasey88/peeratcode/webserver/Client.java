@@ -5,13 +5,11 @@ import java.util.Arrays;
 
 public class Client extends Thread{
 	
-	private Socket socket; // A quoi il sert ??
 	private HttpReader reader;
 	private HttpWriter writer;
 	private Router router;
 	
 	public Client(Socket socket, Router router) throws Exception{
-		this.socket = socket;
 		this.reader = new HttpReader(socket);
 		this.writer = new HttpWriter(socket);
 		this.router = router;

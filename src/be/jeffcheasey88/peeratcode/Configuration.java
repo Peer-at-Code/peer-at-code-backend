@@ -10,13 +10,13 @@ import java.lang.reflect.Field;
 public class Configuration {
 	
 	private String db_host;
-	private String db_port;
+	private int db_port;
 	private String db_user;
 	private String db_database;
 	private String db_password;
 	
-	private String tcp_port;
-	private String use_ssl;
+	private int tcp_port;
+	private boolean use_ssl;
 	private String ssl_keystore;
 	private String ssl_keystorePasswd;
 	
@@ -38,9 +38,47 @@ public class Configuration {
 			Field field = getClass().getDeclaredField(split[0]);
 			if(field == null) continue;
 			field.setAccessible(true);
-			field.set(this, split[1]);
+			injectValue(field, split[1]);
 		}
 		reader.close();
+	}
+	
+	private void injectValue(Field field, String value) throws IllegalAccessException{
+		if(field.getType().isPrimitive()){
+			switch(field.getType().getName()){
+				case "boolean":
+					field.setBoolean(this, Boolean.parseBoolean(value));
+					break;
+				case "byte":
+					field.setByte(this, Byte.parseByte(value));
+					break;
+				case "char":
+					field.setChar(this, value.charAt(0));
+					break;
+				case "double":
+					field.setDouble(this, Double.parseDouble(value));
+					break;
+				case "float":
+					field.setFloat(this, Float.parseFloat(value));
+					break;
+				case "int":
+					field.setInt(this, Integer.parseInt(value));
+					break;
+				case "long":
+					field.setLong(this, Long.parseLong(value));
+					break;
+				case "short":
+					field.setShort(this, Short.parseShort(value));
+					break;
+				default: throw new IllegalArgumentException(value);
+			}
+			return;
+		}
+		if(field.getType().equals(String.class)){
+			field.set(this, value);
+			return;
+		}
+		throw new IllegalArgumentException(value);
 	}
 	
 	public void save() throws Exception{
@@ -65,7 +103,7 @@ public class Configuration {
 		return this.db_host;
 	}
 	
-	public String getDbPort(){
+	public int getDbPort(){
 		return this.db_port;
 	}
 	
@@ -90,10 +128,10 @@ public class Configuration {
 	}
 	
 	public int getTcpPort(){
-		return Integer.parseInt(this.tcp_port);
+		return this.tcp_port;
 	}
 	
 	public boolean useSsl(){
-		return Boolean.parseBoolean(this.use_ssl);
+		return this.use_ssl;
 	}
 }

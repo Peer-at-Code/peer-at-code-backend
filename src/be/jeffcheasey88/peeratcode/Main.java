@@ -32,10 +32,10 @@ public class Main {
 
 		Router router = new Router();
 
-		router.setDefault(new Response() {
+		router.setDefault(new Response(){
 
 			@Override
-			public Pattern getPattern() {
+			public Pattern getPattern(){
 				return null;
 			}
 
@@ -72,7 +72,7 @@ public class Main {
 				server = (SSLServerSocket) ssf.createServerSocket(config.getTcpPort());
 
 				while (!server.isClosed()) {
-					SSLSocket socket = (SSLSocket) server.accept();
+					Socket socket = server.accept();
 					Client client = new Client(socket, router);
 					client.start();
 				}
@@ -94,7 +94,7 @@ public class Main {
 			}
 			catch (Exception e) {
 				e.printStackTrace();
-			}		
+			}
 		}
 	}
 }
