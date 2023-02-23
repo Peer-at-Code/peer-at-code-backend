@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 
-import be.jeffcheasey88.peeratcode.model.User;
-
 public class Router{
 	
 	private List<Response> responses;

@@ -132,4 +132,4 @@ public class Configuration {
 	public boolean useSsl(){
 		return this.use_ssl;
 	}
-}
+ }

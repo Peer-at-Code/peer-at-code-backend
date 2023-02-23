@@ -1,12 +1,13 @@
 package be.jeffcheasey88.peeratcode.routes;
 
 import be.jeffcheasey88.peeratcode.model.Chapter;
-import be.jeffcheasey88.peeratcode.model.User;
 import be.jeffcheasey88.peeratcode.repository.DatabaseRepository;
 import be.jeffcheasey88.peeratcode.webserver.HttpReader;
 import be.jeffcheasey88.peeratcode.webserver.HttpUtil;
 import be.jeffcheasey88.peeratcode.webserver.HttpWriter;
 import be.jeffcheasey88.peeratcode.webserver.Response;
+import be.jeffcheasey88.peeratcode.webserver.User;
+
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
