@@ -4,13 +4,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 
+import org.jose4j.jwk.RsaJsonWebKey;
+import org.jose4j.jwk.RsaJwkGenerator;
+
 public class Router{
 	
 	private List<Response> responses;
 	private Response noFileFound;
+	private RsaJsonWebKey rsaJsonWebKey;
 	
-	public Router(){
+	public Router() throws Exception{
 		this.responses = new ArrayList<>();
+		this.rsaJsonWebKey = RsaJwkGenerator.generateJwk(2048);
 	}
 	
 	public void register(Response response){
@@ -34,4 +39,7 @@ public class Router{
 		if(noFileFound != null) noFileFound.exec(null, user, reader, writer);
 	}
 	
+	public RsaJsonWebKey getWebKey(){
+		return this.rsaJsonWebKey;
+	}
 }

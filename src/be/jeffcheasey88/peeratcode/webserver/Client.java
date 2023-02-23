@@ -3,7 +3,13 @@ package be.jeffcheasey88.peeratcode.webserver;
 import java.net.Socket;
 import java.util.Arrays;
 
+import org.jose4j.jwa.AlgorithmConstraints.ConstraintType;
 import org.jose4j.jwk.RsaJsonWebKey;
+import org.jose4j.jwk.RsaJwkGenerator;
+import org.jose4j.jws.AlgorithmIdentifiers;
+import org.jose4j.jwt.JwtClaims;
+import org.jose4j.jwt.consumer.JwtConsumer;
+import org.jose4j.jwt.consumer.JwtConsumerBuilder;
 
 public class Client extends Thread{
 	
@@ -25,10 +31,28 @@ public class Client extends Thread{
 			String[] headers = reader.readLine().split("\\s");
 			System.out.println(Arrays.toString(headers));
 
-			User user = new User(HttpUtil.readAutorization(reader));
-			router.exec(headers[0], headers[1], user, reader, writer);
+			router.exec(headers[0], headers[1], isLogin(reader), reader, writer);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+	
+	private User isLogin(HttpReader reader){
+		try {
+			JwtConsumer jwtConsumer = new JwtConsumerBuilder()
+		            .setRequireExpirationTime()
+		            .setAllowedClockSkewInSeconds(30)
+		            .setRequireSubject()
+		            .setExpectedIssuer("Issuer")
+		            .setExpectedAudience("Audience")
+		            .setVerificationKey(this.router.getWebKey().getKey())
+		            .setJwsAlgorithmConstraints(
+		                    ConstraintType.PERMIT, AlgorithmIdentifiers.RSA_USING_SHA256)
+		            .build();
+			
+	        JwtClaims jwtClaims = jwtConsumer.processToClaims(HttpUtil.readAutorization(reader));
+	        return new User(jwtClaims);
+		}catch(Exception e){}
+		return null;
 	}
 }

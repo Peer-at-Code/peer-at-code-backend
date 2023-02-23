@@ -6,5 +6,6 @@
 	<classpathentry exported="true" kind="lib" path="mysql-connector-java-8.0.28.jar"/>
 	<classpathentry exported="true" kind="lib" path="password4j-1.6.3.jar"/>
 	<classpathentry exported="true" kind="lib" path="slf4j-api-2.0.6.jar"/>
+	<classpathentry exported="true" kind="lib" path="jose4j-0.9.3.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

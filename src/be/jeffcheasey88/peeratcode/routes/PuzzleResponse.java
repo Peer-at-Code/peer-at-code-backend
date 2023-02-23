@@ -11,6 +11,7 @@ import be.jeffcheasey88.peeratcode.webserver.HttpReader;
 import be.jeffcheasey88.peeratcode.webserver.HttpUtil;
 import be.jeffcheasey88.peeratcode.webserver.HttpWriter;
 import be.jeffcheasey88.peeratcode.webserver.Response;
+import be.jeffcheasey88.peeratcode.webserver.User;
 
 public class PuzzleResponse implements Response {
 	private final DatabaseRepository databaseRepo;
@@ -20,7 +21,7 @@ public class PuzzleResponse implements Response {
 	}
 
 	@Override
-	public void exec(Matcher matcher, HttpReader reader, HttpWriter writer) throws Exception {
+	public void exec(Matcher matcher, User user, HttpReader reader, HttpWriter writer) throws Exception {
 		HttpUtil.skipHeaders(reader);
 		
 		int puzzleId = Integer.parseInt(matcher.group(1));

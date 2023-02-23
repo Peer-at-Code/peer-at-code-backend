@@ -8,6 +8,7 @@ import be.jeffcheasey88.peeratcode.webserver.HttpReader;
 import be.jeffcheasey88.peeratcode.webserver.HttpUtil;
 import be.jeffcheasey88.peeratcode.webserver.HttpWriter;
 import be.jeffcheasey88.peeratcode.webserver.Response;
+import be.jeffcheasey88.peeratcode.webserver.User;
 
 public class Result implements Response{
 	
@@ -18,7 +19,7 @@ public class Result implements Response{
 	}
 
 	@Override
-	public void exec(Matcher matcher, HttpReader reader, HttpWriter writer) throws Exception {
+	public void exec(Matcher matcher, User user, HttpReader reader, HttpWriter writer) throws Exception {
 		int puzzle = Integer.parseInt(matcher.group(1));
 		
 		int score = this.repo.getScore(0, puzzle);
