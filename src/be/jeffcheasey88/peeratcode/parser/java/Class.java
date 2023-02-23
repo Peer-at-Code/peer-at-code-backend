@@ -13,6 +13,7 @@ public class Class {
 	private String name;
 	
 	private List<Variable>vars;
+	private List<Function>functions;
 	
 	public Class(){}
 
@@ -27,6 +28,7 @@ public class Class {
 		this.name = split[split.length-1];
 		
 		this.vars = new ArrayList<>();
+		this.functions = new ArrayList<>();
 		
 		content = matcher.group(3);
 		Pattern empty = Pattern.compile("^\\s*$");
@@ -46,6 +48,7 @@ public class Class {
 			}else{
 				Function func = new Function();
 				int index = func.parse(content);
+				this.functions.add(func);
 				content = content.substring(index);
 			}
 		}

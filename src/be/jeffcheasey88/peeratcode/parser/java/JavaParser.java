@@ -43,6 +43,18 @@ public class JavaParser {
 		content = content.substring(index);
 	}
 	
+	public Package getPackage(){
+		return this.pack;
+	}
+	
+	public List<Import> getImports(){
+		return this.imports;
+	}
+	
+	public Class getClazz(){
+		return this.clazz;
+	}
+	
 	public static int getModifier(String modifier){
 		switch(modifier){
 			case "public": return Modifier.PUBLIC;
