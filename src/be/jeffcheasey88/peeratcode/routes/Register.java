@@ -10,14 +10,17 @@ import be.jeffcheasey88.peeratcode.webserver.HttpReader;
 import be.jeffcheasey88.peeratcode.webserver.HttpUtil;
 import be.jeffcheasey88.peeratcode.webserver.HttpWriter;
 import be.jeffcheasey88.peeratcode.webserver.Response;
+import be.jeffcheasey88.peeratcode.webserver.Router;
 import be.jeffcheasey88.peeratcode.webserver.User;
 
 public class Register implements Response {
 
-	private final DatabaseRepository databaseRepo;
+	private DatabaseRepository databaseRepo;
+	private Router router;
 
-	public Register(DatabaseRepository databaseRepo) {
+	public Register(DatabaseRepository databaseRepo, Router router) {
 		this.databaseRepo = databaseRepo;
+		this.router = router;
 	}
 
 	@Override
@@ -45,8 +48,11 @@ public class Register implements Response {
 			boolean pseudoAvailable = databaseRepo.checkPseudoAvailability(pseudo);
 			boolean emailAvailable = databaseRepo.checkEmailAvailability(email);
 			if (pseudoAvailable && emailAvailable) {
-				if (databaseRepo.register(pseudo, email, password, firstname, lastname, description, group, avatar)){
-					HttpUtil.responseHeaders(writer, 200, "Access-Control-Allow-Origin: *");
+				int id;
+				if ((id = databaseRepo.register(pseudo, email, password, firstname, lastname, description, group, avatar)) >= 0){
+					HttpUtil.responseHeaders(writer, 200,
+							"Access-Control-Allow-Origin: *",
+							"Authorization: Bearer "+this.router.createAuthUser(id));
 					return;
 				}
 			} else {

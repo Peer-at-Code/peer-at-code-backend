@@ -6,16 +6,28 @@ import java.util.regex.Matcher;
 
 import org.jose4j.jwk.RsaJsonWebKey;
 import org.jose4j.jwk.RsaJwkGenerator;
+import org.jose4j.jws.AlgorithmIdentifiers;
+import org.jose4j.jws.JsonWebSignature;
+import org.jose4j.jwt.JwtClaims;
+import org.jose4j.lang.JoseException;
+
+import be.jeffcheasey88.peeratcode.repository.DatabaseRepository;
 
 public class Router{
 	
 	private List<Response> responses;
 	private Response noFileFound;
 	private RsaJsonWebKey rsaJsonWebKey;
+	private DatabaseRepository repo;
 	
-	public Router() throws Exception{
+	public Router(DatabaseRepository repo) throws Exception{
+		this.repo = repo;
 		this.responses = new ArrayList<>();
 		this.rsaJsonWebKey = RsaJwkGenerator.generateJwk(2048);
+	}
+	
+	public DatabaseRepository getDataBase(){
+		return this.repo;
 	}
 	
 	public void register(Response response){
@@ -41,5 +53,24 @@ public class Router{
 	
 	public RsaJsonWebKey getWebKey(){
 		return this.rsaJsonWebKey;
+	}
+	
+	public String createAuthUser(int id) throws JoseException{
+		JwtClaims claims = new JwtClaims();
+	    claims.setIssuer("Issuer");  // who creates the token and signs it
+	    claims.setAudience("Audience"); // to whom the token is intended to be sent
+	    claims.setExpirationTimeMinutesInTheFuture(10); // time when the token will expire (10 minutes from now)
+	    claims.setGeneratedJwtId(); // a unique identifier for the token
+	    claims.setIssuedAtToNow();  // when the token was issued/created (now)
+	    claims.setNotBeforeMinutesInThePast(2); // time before which the token is not yet valid (2 minutes ago)
+	    
+	    claims.setClaim("id", id);
+	    
+	    JsonWebSignature jws = new JsonWebSignature();
+	    jws.setPayload(claims.toJson());
+	    jws.setKey(rsaJsonWebKey.getPrivateKey());
+	    jws.setKeyIdHeaderValue(rsaJsonWebKey.getKeyId());
+	    jws.setAlgorithmHeaderValue(AlgorithmIdentifiers.RSA_USING_SHA256);
+	    return jws.getCompactSerialization();
 	}
 }

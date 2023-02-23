@@ -48,7 +48,7 @@ public class Main {
 
 		Class.forName("com.mysql.cj.jdbc.Driver");
 
-		Router router = new Router();
+		Router router = new Router(new DatabaseRepository(config));
 
 		router.setDefault(new Response(){
 
@@ -66,19 +66,19 @@ public class Main {
 			}
 		});
 
-		initRoutes(router, new DatabaseRepository(config));
+		initRoutes(router);
 
 		startWebServer(config, router);
 	}
 
-	private static void initRoutes(Router router, DatabaseRepository repo) {
-		router.register(new ChapterElement(repo));
-		router.register(new ChapterList(repo));
-		router.register(new PuzzleElement(repo));
-		router.register(new Register(repo));
-		router.register(new Login(repo));
-		router.register(new Result(repo));
-		router.register(new PuzzleResponse(repo));
+	private static void initRoutes(Router router) {
+		router.register(new ChapterElement(router.getDataBase()));
+		router.register(new ChapterList(router.getDataBase()));
+		router.register(new PuzzleElement(router.getDataBase()));
+		router.register(new Register(router.getDataBase(), router));
+		router.register(new Login(router.getDataBase(), router));
+		router.register(new Result(router.getDataBase()));
+		router.register(new PuzzleResponse(router.getDataBase()));
 	}
 
 	private static void startWebServer(Configuration config, Router router) throws IOException {

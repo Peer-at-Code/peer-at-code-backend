@@ -22,8 +22,12 @@ public class PuzzleResponse implements Response {
 
 	@Override
 	public void exec(Matcher matcher, User user, HttpReader reader, HttpWriter writer) throws Exception {
-		HttpUtil.skipHeaders(reader);
+		if(user == null){
+			HttpUtil.responseHeaders(writer, 403, "Access-Control-Allow-Origin: *");
+			return;
+		}
 		
+		HttpUtil.skipHeaders(reader);
 		int puzzleId = Integer.parseInt(matcher.group(1));
 		byte[] response;
 		byte[] fileName;

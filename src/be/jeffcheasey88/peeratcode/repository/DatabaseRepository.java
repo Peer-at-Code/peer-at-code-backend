@@ -1,18 +1,20 @@
 package be.jeffcheasey88.peeratcode.repository;
 
-import be.jeffcheasey88.peeratcode.Configuration;
-import be.jeffcheasey88.peeratcode.model.Chapter;
-import be.jeffcheasey88.peeratcode.model.Puzzle;
-import com.password4j.Hash;
-import com.password4j.Password;
-
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+
+import com.password4j.Hash;
+import com.password4j.Password;
+
+import be.jeffcheasey88.peeratcode.Configuration;
+import be.jeffcheasey88.peeratcode.model.Chapter;
+import be.jeffcheasey88.peeratcode.model.Puzzle;
 
 public class DatabaseRepository {
 	private static final String SPECIFIC_PUZZLE_QUERY = "SELECT * FROM puzzles WHERE id_puzzle = ?";
@@ -22,7 +24,7 @@ public class DatabaseRepository {
 	private static final String CHECK_PSEUDO_AVAILABLE_QUERY = "SELECT * FROM players WHERE pseudo = ?";
 	private static final String CHECK_EMAIL_AVAILABLE_QUERY = "SELECT * FROM players WHERE email = ?";
 	private static final String REGISTER_QUERY = "INSERT INTO players (pseudo, email, passwd, firstname, lastname, description, sgroup, avatar) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-	private static final String CHECK_PASSWORD = "SELECT passwd FROM players WHERE pseudo=?";
+	private static final String CHECK_PASSWORD = "SELECT id_player, passwd FROM players WHERE pseudo=?";
 	private static final String SCORE = "SELECT score FROM completions WHERE fk_player = ? AND fk_puzzle = ?";
 	private static final String GET_PUZZLE_SOLUTION = "SELECT soluce FROM puzzles WHERE id_puzzle=?";
 	private static final String GET_PUZZLE_SCORE_MAX = "SELECT score_max FROM puzzles WHERE id_puzzle=?";
@@ -192,11 +194,11 @@ public class DatabaseRepository {
 	 * @param avatar      The avatar of the user
 	 * @return True if the user was registered, false if an error occurred
 	 */
-	public boolean register(String pseudo, String email, String password, String firstname, String lastname, String description, String sgroup, String avatar) {
+	public int register(String pseudo, String email, String password, String firstname, String lastname, String description, String sgroup, String avatar) {
 		Hash hash = Password.hash(password).withArgon2();
 		try {
 			ensureConnection();
-			PreparedStatement statement = con.prepareStatement(REGISTER_QUERY);
+			PreparedStatement statement = con.prepareStatement(REGISTER_QUERY, Statement.RETURN_GENERATED_KEYS);
 			statement.setString(1, pseudo);
 			statement.setString(2, email);
 			statement.setString(3, hash.getResult());
@@ -205,11 +207,14 @@ public class DatabaseRepository {
 			statement.setString(6, description);
 			statement.setString(7, sgroup);
 			statement.setString(8, avatar);
-			return statement.executeUpdate() == 1;
+			if(statement.executeUpdate() == 1){
+				ResultSet inserted = statement.getGeneratedKeys();
+				if(inserted.next()) return inserted.getInt("id_player");
+			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		return false;
+		return -1;
 	}
 
 	/**
@@ -217,9 +222,9 @@ public class DatabaseRepository {
 	 *
 	 * @param username    The username of the user
 	 * @param password The password of the user
-	 * @return True if the user's information are correct, false otherwise (or if an error occurred)
+	 * @return id the id of the user, -1 if not login successefuly
 	 */
-	public boolean login(String username, String password) {
+	public int login(String username, String password) {
 		try {
 			ensureConnection();
 			PreparedStatement statement = con.prepareStatement(CHECK_PASSWORD);
@@ -227,12 +232,11 @@ public class DatabaseRepository {
 			ResultSet result = statement.executeQuery();
 			if (result.next()) {
 				String hashedPassword = result.getString("passwd");
-				return Password.check(password, hashedPassword).withArgon2();
+				if(Password.check(password, hashedPassword).withArgon2()) return result.getInt("id_player");
 			}
 		} catch (SQLException e) {
-			e.printStackTrace();
 		}
-		return false;
+		return -1;
 	}
 
 	public byte[] getPuzzleSolution(int puzzleId) {

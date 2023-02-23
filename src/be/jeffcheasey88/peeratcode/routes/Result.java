@@ -20,9 +20,14 @@ public class Result implements Response{
 
 	@Override
 	public void exec(Matcher matcher, User user, HttpReader reader, HttpWriter writer) throws Exception {
+		if(user == null){
+			HttpUtil.responseHeaders(writer, 403, "Access-Control-Allow-Origin: *");
+			return;
+		}
+		
 		int puzzle = Integer.parseInt(matcher.group(1));
 		
-		int score = this.repo.getScore(0, puzzle);
+		int score = this.repo.getScore(user.getId(), puzzle);
 		if(score < 0) {
 			HttpUtil.responseHeaders(writer, 425, "Access-Control-Allow-Origin: *");
 		}else{
