@@ -23,6 +23,12 @@ public class DatabaseRepository {
 	private static final String CHECK_EMAIL_AVAILABLE_QUERY = "SELECT * FROM players WHERE email = ?";
 	private static final String REGISTER_QUERY = "INSERT INTO players (pseudo, email, passwd, firstname, lastname, description, sgroup, avatar) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 	private static final String CHECK_PASSWORD = "SELECT passwd FROM players WHERE pseudo=?";
+	private static final String GET_PUZZLE_SOLUTION = "SELECT soluce FROM puzzles WHERE id_puzzle=?";
+	private static final String GET_PUZZLE_SCORE_MAX = "SELECT score_max FROM puzzles WHERE id_puzzle=?";
+	private static final String GET_PLAYER_ID_BY_PSEUDO = "SELECT id_player FROM players WHERE pseudo=?";
+	private static final String GET_PUZZLE_NB_TRIES_AND_SCORE_BY_PLAYER = "SELECT tries, score FROM completions WHERE fk_puzzle = ? AND fk_player = ?";
+	private static final String INSERT_COMPLETION = "INSERT INTO completions (fk_puzzle, fk_player, tries, code, fileName, score) values (?, ?, ?, ?, ?, ?)";
+	private static final String UPDATE_COMPLETION = "UPDATE completions SET tries = ?, code = ?, filename = ?, score = ?";
 
 	private Connection con;
 	private Configuration config;
@@ -212,5 +218,92 @@ public class DatabaseRepository {
 			e.printStackTrace();
 		}
 		return false;
+	}
+
+	public byte[] getPuzzleSolution(int puzzleId) {
+		try {
+			PreparedStatement puzzleStmt = con.prepareStatement(GET_PUZZLE_SOLUTION);
+			puzzleStmt.setInt(1, puzzleId);
+			ResultSet result = puzzleStmt.executeQuery();
+			if (result.next()) {
+				return result.getBytes("soluce");
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	public int insertOrUpdatePuzzleResponse(int puzzleId, String pseudo, String fileName, byte[] code) {
+		try {
+			ensureConnection();
+			int[] triesAndScore = getPuzzleNbTriesAndScore(puzzleId, pseudo);
+			int playerId = getPlayerIdByPseudo(pseudo);
+			int puzzleScoreMax = getPuzzleScoreMax(puzzleId);
+			if (triesAndScore[0] < 0) {
+				// Insert completions
+				PreparedStatement statement = con.prepareStatement(INSERT_COMPLETION);
+				statement.setInt(1, puzzleId);
+				statement.setInt(2, playerId);
+				statement.setInt(3, 0);
+				statement.setBytes(4, code);
+				statement.setString(5, fileName);
+				statement.setInt(6, puzzleScoreMax);
+				return puzzleScoreMax;
+			} else {
+				// Update completions
+				int score = puzzleScoreMax * (((triesAndScore[0]-1)*10)/100);
+				PreparedStatement statement = con.prepareStatement(UPDATE_COMPLETION);
+				statement.setInt(1, triesAndScore[0]+1);
+				statement.setBytes(2, code);
+				statement.setString(3, fileName);
+				statement.setInt(4, score);
+				return score;
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return -1;
+	}
+	public int getPuzzleScoreMax(int puzzleId) {
+		try {
+			PreparedStatement puzzleStmt = con.prepareStatement(GET_PUZZLE_SCORE_MAX);
+			puzzleStmt.setInt(1, puzzleId);
+			ResultSet result = puzzleStmt.executeQuery();
+			if (result.next()) {
+				return result.getInt("score_max");
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return -1;
+	}
+	public int[] getPuzzleNbTriesAndScore(int puzzleId, String pseudo) {
+		try {
+			PreparedStatement puzzleStmt = con.prepareStatement(GET_PUZZLE_NB_TRIES_AND_SCORE_BY_PLAYER);
+			puzzleStmt.setInt(1, puzzleId);
+			ResultSet result = puzzleStmt.executeQuery();
+			int[] res = new int[2];
+			if (result.next()) {
+				res[0] = result.getInt("tries");
+				res[1] = result.getInt("score");
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	private int getPlayerIdByPseudo(String pseudo) {
+		try {
+			PreparedStatement puzzleStmt = con.prepareStatement(GET_PLAYER_ID_BY_PSEUDO);
+			puzzleStmt.setString(1, pseudo);
+			ResultSet result = puzzleStmt.executeQuery();
+			if (result.next()) {
+				return result.getInt("id_player");
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return -1;
 	}
 }

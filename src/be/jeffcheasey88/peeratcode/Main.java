@@ -8,13 +8,13 @@ import java.util.regex.Pattern;
 
 import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLServerSocketFactory;
-import javax.net.ssl.SSLSocket;
 
 import be.jeffcheasey88.peeratcode.repository.DatabaseRepository;
 import be.jeffcheasey88.peeratcode.routes.ChapterElement;
 import be.jeffcheasey88.peeratcode.routes.ChapterList;
 import be.jeffcheasey88.peeratcode.routes.Login;
 import be.jeffcheasey88.peeratcode.routes.PuzzleElement;
+import be.jeffcheasey88.peeratcode.routes.PuzzleResponse;
 import be.jeffcheasey88.peeratcode.routes.Register;
 import be.jeffcheasey88.peeratcode.webserver.Client;
 import be.jeffcheasey88.peeratcode.webserver.HttpReader;
@@ -24,7 +24,6 @@ import be.jeffcheasey88.peeratcode.webserver.Response;
 import be.jeffcheasey88.peeratcode.webserver.Router;
 
 public class Main {
-	// Define SSL Protocol parameters
 	public static void main(String[] args) throws Exception {
 		Configuration config = new Configuration("config.txt");
 		config.load();
@@ -59,6 +58,7 @@ public class Main {
 		router.register(new PuzzleElement(repo));
 		router.register(new Register(repo));
 		router.register(new Login(repo));
+		router.register(new PuzzleResponse(repo));
 	}
 
 	private static void startWebServer(Configuration config, Router router) throws IOException {
