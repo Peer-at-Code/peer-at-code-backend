@@ -23,7 +23,8 @@ public class DatabaseRepository {
 	private static final String CHECK_EMAIL_AVAILABLE_QUERY = "SELECT * FROM players WHERE email = ?";
 	private static final String REGISTER_QUERY = "INSERT INTO players (pseudo, email, passwd, firstname, lastname, description, sgroup, avatar) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 	private static final String CHECK_PASSWORD = "SELECT passwd FROM players WHERE pseudo=?";
-
+	private static final String SCORE = "SELECT score FROM completions WHERE fk_player = ? AND fk_puzzle = ?";
+	
 	private Connection con;
 	private Configuration config;
 
@@ -76,6 +77,20 @@ public class DatabaseRepository {
 			e.printStackTrace();
 		}
 		return null;
+	}
+	
+	public int getScore(int user, int puzzle){
+		try {
+			PreparedStatement stmt = this.con.prepareStatement(SCORE);
+			stmt.setInt(1, user);
+			stmt.setInt(2, puzzle);
+			
+			ResultSet result = stmt.executeQuery();
+			if(result.next()) result.getInt("score");
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		return -1;
 	}
 
 	/**
