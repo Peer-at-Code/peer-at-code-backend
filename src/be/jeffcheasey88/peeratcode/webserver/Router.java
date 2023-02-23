@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 
+import be.jeffcheasey88.peeratcode.model.User;
+
 public class Router{
 	
 	private List<Response> responses;
@@ -20,18 +22,18 @@ public class Router{
 	public void setDefault(Response response){
 		this.noFileFound = response;
 	}
-	
-	public void exec(String type, String path, HttpReader reader, HttpWriter writer) throws Exception {
+
+	public void exec(String type, String path, User user, HttpReader reader, HttpWriter writer) throws Exception {
 		for(Response response : this.responses){
 			if(type.equals(response.getType())){
 				Matcher matcher = response.getPattern().matcher(path);
 				if(matcher.matches()){
-					response.exec(matcher, reader, writer);
+					response.exec(matcher, user, reader, writer);
 					return;
 				}
 			}
 		}
-		if(noFileFound != null) noFileFound.exec(null, reader, writer);
+		if(noFileFound != null) noFileFound.exec(null, user, reader, writer);
 	}
 	
 }

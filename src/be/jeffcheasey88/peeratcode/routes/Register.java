@@ -5,6 +5,7 @@ import java.util.regex.Pattern;
 
 import org.json.simple.JSONObject;
 
+import be.jeffcheasey88.peeratcode.model.User;
 import be.jeffcheasey88.peeratcode.repository.DatabaseRepository;
 import be.jeffcheasey88.peeratcode.webserver.HttpReader;
 import be.jeffcheasey88.peeratcode.webserver.HttpUtil;
@@ -20,7 +21,7 @@ public class Register implements Response {
 	}
 
 	@Override
-	public void exec(Matcher matcher, HttpReader reader, HttpWriter writer) throws Exception {
+	public void exec(Matcher matcher, User user, HttpReader reader, HttpWriter writer) throws Exception {
 		HttpUtil.skipHeaders(reader);
 		JSONObject informations = (JSONObject) HttpUtil.readJson(reader);
 		if (informations != null) {

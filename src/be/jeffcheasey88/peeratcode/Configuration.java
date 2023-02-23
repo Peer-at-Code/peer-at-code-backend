@@ -19,9 +19,7 @@ public class Configuration {
 	private boolean use_ssl;
 	private String ssl_keystore;
 	private String ssl_keystorePasswd;
-	
-	
-	
+
 	private File _file;
 	
 	public Configuration(String path){

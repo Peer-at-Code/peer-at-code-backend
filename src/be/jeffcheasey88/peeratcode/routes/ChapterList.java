@@ -1,6 +1,7 @@
 package be.jeffcheasey88.peeratcode.routes;
 
 import be.jeffcheasey88.peeratcode.model.Chapter;
+import be.jeffcheasey88.peeratcode.model.User;
 import be.jeffcheasey88.peeratcode.repository.DatabaseRepository;
 import be.jeffcheasey88.peeratcode.webserver.HttpReader;
 import be.jeffcheasey88.peeratcode.webserver.HttpUtil;
@@ -22,7 +23,7 @@ public class ChapterList implements Response {
 	}
 
 	@Override
-	public void exec(Matcher matcher, HttpReader reader, HttpWriter writer) throws Exception {
+	public void exec(Matcher matcher, User user, HttpReader reader, HttpWriter writer) throws Exception {
 		HttpUtil.responseHeaders(writer, 200, "Access-Control-Allow-Origin: *");
 		List<Chapter> allChapters = databaseRepo.getAllChapters();
 		if (allChapters != null) {

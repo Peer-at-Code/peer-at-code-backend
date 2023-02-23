@@ -3,12 +3,22 @@ package be.jeffcheasey88.peeratcode;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Arrays;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLServerSocketFactory;
+import javax.net.ssl.SSLSocket;
 
+import org.jose4j.jwk.RsaJsonWebKey;
+import org.jose4j.jwk.RsaJwkGenerator;
+import org.jose4j.jws.AlgorithmIdentifiers;
+import org.jose4j.jws.JsonWebSignature;
+import org.jose4j.jwt.JwtClaims;
+
+import be.jeffcheasey88.peeratcode.model.User;
 import be.jeffcheasey88.peeratcode.repository.DatabaseRepository;
 import be.jeffcheasey88.peeratcode.routes.ChapterElement;
 import be.jeffcheasey88.peeratcode.routes.ChapterList;
@@ -40,7 +50,7 @@ public class Main {
 			}
 
 			@Override
-			public void exec(Matcher matcher, HttpReader reader, HttpWriter writer) throws Exception {
+			public void exec(Matcher matcher, User user, HttpReader reader, HttpWriter writer) throws Exception {
 				HttpUtil.responseHeaders(writer, 404, "Access-Control-Allow-Origin: *");
 				writer.write("404 not Found.\n");
 				writer.flush();

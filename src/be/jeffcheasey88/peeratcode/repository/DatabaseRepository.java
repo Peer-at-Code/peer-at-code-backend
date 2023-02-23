@@ -24,7 +24,7 @@ public class DatabaseRepository {
 	private static final String REGISTER_QUERY = "INSERT INTO players (pseudo, email, passwd, firstname, lastname, description, sgroup, avatar) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 	private static final String CHECK_PASSWORD = "SELECT passwd FROM players WHERE pseudo=?";
 	private static final String SCORE = "SELECT score FROM completions WHERE fk_player = ? AND fk_puzzle = ?";
-	
+
 	private Connection con;
 	private Configuration config;
 
