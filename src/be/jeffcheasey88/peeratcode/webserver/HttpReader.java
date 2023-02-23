@@ -38,4 +38,12 @@ public class HttpReader {
 		return this.reader.ready();
 	}
 	
+	public int readInt() throws Exception{
+        int result = 0;
+        result+=this.in.read() << 24;
+        result+=this.in.read() << 16;
+        result+=this.in.read() << 8;
+        result+=this.in.read();
+        return result;
+    }
 }
