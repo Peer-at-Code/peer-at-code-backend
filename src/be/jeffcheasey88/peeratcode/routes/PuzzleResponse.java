@@ -1,9 +1,11 @@
 package be.jeffcheasey88.peeratcode.routes;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -59,8 +61,9 @@ public class PuzzleResponse implements Response {
 	}
 
 	private void saveSourceCode(ReceivedResponse received, Player player) throws IOException {
-		Path path = Paths.get(player.getPathToSourceCode() + received.getFileName());
+		Path path = Paths.get(String.format("%s/puz%04d-%s", player.getPathToSourceCode(), received.getPuzzleId(), received.getFileName()));
 		Files.write(path, received.getSourceCode());
+		
 	}
 
 	@Override
