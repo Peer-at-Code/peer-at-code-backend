@@ -8,6 +8,8 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import com.password4j.Hash;
 import com.password4j.Password;
@@ -30,6 +32,7 @@ public class DatabaseRepository {
 	private static final String SCORE = "SELECT score FROM completions WHERE fk_player = ? AND fk_puzzle = ?";
 	private static final String GET_COMPLETION = "SELECT id_completion, tries, fileName, score FROM completions WHERE fk_puzzle = ? AND fk_player = ?";
 	private static final String GET_PLAYER = "SELECT * FROM players WHERE id_player = ?";
+	private static final String ALL_PLAYERS_FOR_LEADERBOARD = "SELECT p.*, sum(c.score) AS playerScore, count(c.id_completion) AS playerCompletions, sum(c.tries) AS playerTries FROM players p LEFT JOIN completions c ON c.fk_player = p.id_player GROUP BY p.id_player ORDER BY playerScore DESC";
 	private static final String INSERT_COMPLETION = "INSERT INTO completions (fk_puzzle, fk_player, tries, code, fileName, score) values (?, ?, ?, ?, ?, ?)";
 	private static final String UPDATE_COMPLETION = "UPDATE completions SET tries = ?, filename = ?, score = ? WHERE fk_puzzle = ? AND fk_player = ?";
 
@@ -66,7 +69,8 @@ public class DatabaseRepository {
 	private Player makePlayer(ResultSet playerResult) throws SQLException {
 		return new Player(playerResult.getString("pseudo"), playerResult.getString("email"),
 				playerResult.getString("firstName"), playerResult.getString("LastName"),
-				playerResult.getString("description"), playerResult.getString("sgroup"));
+				playerResult.getString("description"), playerResult.getString("sgroup"),
+				playerResult.getBytes("avatar"));
 	}
 
 	private List<Puzzle> getPuzzlesInChapter(int id) throws SQLException {
@@ -141,6 +145,27 @@ public class DatabaseRepository {
 			if (result.next()) {
 				return makePlayer(result);
 			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	public SortedSet<Player> getAllPlayerForLeaderboard() {
+		try {
+			ensureConnection();
+			PreparedStatement playersStmt = con.prepareStatement(ALL_PLAYERS_FOR_LEADERBOARD);
+			ResultSet result = playersStmt.executeQuery();
+			SortedSet<Player> players = new TreeSet<Player>();
+			Player tmpPlayer;
+			while (result.next()) {
+				tmpPlayer = makePlayer(result);
+				tmpPlayer.setTotalScore(result.getInt("playerScore"));
+				tmpPlayer.setTotalCompletion(result.getInt("playerCompletions"));
+				tmpPlayer.setTotalTries(result.getInt("playerTries"));
+				players.add(tmpPlayer);
+			}
+			return players;
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

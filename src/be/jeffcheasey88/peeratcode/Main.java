@@ -28,6 +28,7 @@ import org.jose4j.lang.JoseException;
 import be.jeffcheasey88.peeratcode.repository.DatabaseRepository;
 import be.jeffcheasey88.peeratcode.routes.ChapterElement;
 import be.jeffcheasey88.peeratcode.routes.ChapterList;
+import be.jeffcheasey88.peeratcode.routes.Leaderboard;
 import be.jeffcheasey88.peeratcode.routes.Login;
 import be.jeffcheasey88.peeratcode.routes.PuzzleElement;
 import be.jeffcheasey88.peeratcode.routes.PuzzleResponse;
@@ -79,6 +80,7 @@ public class Main {
 		router.register(new Login(router.getDataBase(), router));
 		router.register(new Result(router.getDataBase()));
 		router.register(new PuzzleResponse(router.getDataBase()));
+		router.register(new Leaderboard(router.getDataBase()));
 	}
 
 	private static void startWebServer(Configuration config, Router router) throws IOException {
