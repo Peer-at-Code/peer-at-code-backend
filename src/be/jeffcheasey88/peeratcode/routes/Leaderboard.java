@@ -27,8 +27,8 @@ public class Leaderboard implements Response {
 	public void exec(Matcher matcher, User user, HttpReader reader, HttpWriter writer) throws Exception {
 		HttpUtil.responseHeaders(writer, 200, "Access-Control-Allow-Origin: *");
 		SortedSet<Player> allPlayers = databaseRepo.getAllPlayerForLeaderboard();
+		JSONArray playersJSON = new JSONArray();
 		if (allPlayers != null) {
-			JSONArray playersJSON = new JSONArray();
 			for (Player player : allPlayers) {
 				JSONObject playerJSON = new JSONObject();
 				playerJSON.put("pseudo", player.getPseudo());
@@ -39,8 +39,8 @@ public class Leaderboard implements Response {
 				playerJSON.put("tries", player.getTotalTries());
 				playersJSON.add(playerJSON);
 			}
-			writer.write(playersJSON.toJSONString());
 		}
+		writer.write(playersJSON.toJSONString());
 		writer.flush();
 		writer.close();
 	}

@@ -58,9 +58,11 @@ public class HttpUtil {
 		String line;
 		String key = null;
 		while(((line = reader.readLine()) != null) && (line.length() > 0)){
-			if(key != null) continue;
 			Matcher matcher = AUTORIZATION.matcher(line);
-			if(matcher.matches()) key = matcher.group(1);
+			if(matcher.matches()){
+				key = matcher.group(1);
+				break;
+			}
 		}
 		return key;
 	}
