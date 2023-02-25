@@ -1,10 +1,14 @@
 package be.jeffcheasey88.peeratcode.routes;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.json.simple.JSONObject;
 
+import be.jeffcheasey88.peeratcode.model.Player;
 import be.jeffcheasey88.peeratcode.repository.DatabaseRepository;
 import be.jeffcheasey88.peeratcode.webserver.HttpReader;
 import be.jeffcheasey88.peeratcode.webserver.HttpUtil;
@@ -49,10 +53,11 @@ public class Register implements Response {
 			boolean emailAvailable = databaseRepo.checkEmailAvailability(email);
 			if (pseudoAvailable && emailAvailable) {
 				int id;
-				if ((id = databaseRepo.register(pseudo, email, password, firstname, lastname, description, group, avatar)) >= 0){
-					HttpUtil.responseHeaders(writer, 200,
-							"Access-Control-Allow-Origin: *",
-							"Authorization: Bearer "+this.router.createAuthUser(id));
+				if ((id = databaseRepo.register(pseudo, email, password, firstname, lastname, description, group,
+						avatar)) >= 0) {
+					HttpUtil.responseHeaders(writer, 200, "Access-Control-Allow-Origin: *",
+							"Authorization: Bearer " + this.router.createAuthUser(id));
+					createFolderToSaveSourceCode(pseudo);
 					return;
 				}
 			} else {
@@ -67,13 +72,17 @@ public class Register implements Response {
 		HttpUtil.responseHeaders(writer, 403, "Access-Control-Allow-Origin: *");
 	}
 
+	private void createFolderToSaveSourceCode(String pseudo) throws IOException {
+		Files.createDirectories(Paths.get(String.format(Player.PATH_TO_CODE, pseudo)));
+	}
+
 	@Override
 	public Pattern getPattern() {
 		return Pattern.compile("^\\/register$");
 	}
-	
+
 	@Override
-	public String getType(){
+	public String getType() {
 		return "POST";
 	}
 

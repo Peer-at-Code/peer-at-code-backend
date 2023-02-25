@@ -58,7 +58,7 @@ public class Puzzle {
 		this.verify = regex;
 	}
 	
-	private int getScoreMax(){
+	public int getScoreMax(){
 		return this.scoreMax;
 	}
 	

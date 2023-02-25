@@ -14,6 +14,8 @@ import com.password4j.Password;
 
 import be.jeffcheasey88.peeratcode.Configuration;
 import be.jeffcheasey88.peeratcode.model.Chapter;
+import be.jeffcheasey88.peeratcode.model.Completion;
+import be.jeffcheasey88.peeratcode.model.Player;
 import be.jeffcheasey88.peeratcode.model.Puzzle;
 
 public class DatabaseRepository {
@@ -26,32 +28,45 @@ public class DatabaseRepository {
 	private static final String REGISTER_QUERY = "INSERT INTO players (pseudo, email, passwd, firstname, lastname, description, sgroup, avatar) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 	private static final String CHECK_PASSWORD = "SELECT id_player, passwd FROM players WHERE pseudo=?";
 	private static final String SCORE = "SELECT score FROM completions WHERE fk_player = ? AND fk_puzzle = ?";
-	private static final String GET_PUZZLE_SOLUTION = "SELECT soluce FROM puzzles WHERE id_puzzle=?";
-	private static final String GET_PUZZLE_SCORE_MAX = "SELECT score_max FROM puzzles WHERE id_puzzle=?";
-	private static final String GET_PLAYER_ID_BY_PSEUDO = "SELECT id_player FROM players WHERE pseudo=?";
-	private static final String GET_PUZZLE_NB_TRIES_AND_SCORE_BY_PLAYER = "SELECT tries, score FROM completions WHERE fk_puzzle = ? AND fk_player = ?";
+	private static final String GET_COMPLETION = "SELECT id_completion, tries, fileName, score FROM completions WHERE fk_puzzle = ? AND fk_player = ?";
+	private static final String GET_PLAYER = "SELECT * FROM players WHERE id_player = ?";
 	private static final String INSERT_COMPLETION = "INSERT INTO completions (fk_puzzle, fk_player, tries, code, fileName, score) values (?, ?, ?, ?, ?, ?)";
-	private static final String UPDATE_COMPLETION = "UPDATE completions SET tries = ?, code = ?, filename = ?, score = ?";
+	private static final String UPDATE_COMPLETION = "UPDATE completions SET tries = ?, filename = ?, score = ? WHERE fk_puzzle = ? AND fk_player = ?";
 
 	private Connection con;
 	private Configuration config;
 
-	public DatabaseRepository(Configuration config){
+	public DatabaseRepository(Configuration config) {
 		this.config = config;
 	}
-	
-	private void ensureConnection() throws SQLException{
-		if(con == null || (!con.isValid(5))){
-			this.con = DriverManager.getConnection("jdbc:mysql://"+config.getDbHost()+":"+config.getDbPort()+"/"+config.getDbDatabase()+"",config.getDbUser(), config.getDbPassword());
+
+	private void ensureConnection() throws SQLException {
+		if (con == null || (!con.isValid(5))) {
+			this.con = DriverManager.getConnection(
+					"jdbc:mysql://" + config.getDbHost() + ":" + config.getDbPort() + "/" + config.getDbDatabase() + "",
+					config.getDbUser(), config.getDbPassword());
 		}
 	}
 
 	private Puzzle makePuzzle(ResultSet puzzleResult) throws SQLException {
-		return new Puzzle(puzzleResult.getInt("id_puzzle"), puzzleResult.getString("name"), puzzleResult.getString("content"), null,"",0);
+		return new Puzzle(puzzleResult.getInt("id_puzzle"), puzzleResult.getString("name"),
+				puzzleResult.getString("content"), null, "", 0);
 	}
 
 	private Chapter makeChapter(ResultSet chapterResult) throws SQLException {
 		return new Chapter(chapterResult.getInt("id_chapter"), chapterResult.getString("name"));
+	}
+
+	private Completion makeCompletion(int playerId, int puzzleId, ResultSet completionResult) throws SQLException {
+		return new Completion(playerId, puzzleId, completionResult.getInt("id_completion"),
+				completionResult.getInt("tries"), completionResult.getString("fileName"),
+				completionResult.getInt("score"), null);
+	}
+
+	private Player makePlayer(ResultSet playerResult) throws SQLException {
+		return new Player(playerResult.getString("pseudo"), playerResult.getString("email"),
+				playerResult.getString("firstName"), playerResult.getString("LastName"),
+				playerResult.getString("description"), playerResult.getString("sgroup"));
 	}
 
 	private List<Puzzle> getPuzzlesInChapter(int id) throws SQLException {
@@ -86,19 +101,50 @@ public class DatabaseRepository {
 		}
 		return null;
 	}
-	
-	public int getScore(int user, int puzzle){
+
+	public int getScore(int user, int puzzle) {
 		try {
+			ensureConnection();
 			PreparedStatement stmt = this.con.prepareStatement(SCORE);
 			stmt.setInt(1, user);
 			stmt.setInt(2, puzzle);
-			
+
 			ResultSet result = stmt.executeQuery();
-			if(result.next()) result.getInt("score");
-		}catch(Exception e){
+			if (result.next())
+				result.getInt("score");
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return -1;
+	}
+
+	public Completion getCompletion(int playerId, int puzzleId) {
+		try {
+			PreparedStatement completionsStmt = con.prepareStatement(GET_COMPLETION);
+			completionsStmt.setInt(1, puzzleId);
+			completionsStmt.setInt(2, playerId);
+			ResultSet result = completionsStmt.executeQuery();
+			if (result.next()) {
+				return makeCompletion(playerId, puzzleId, result);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	public Player getPlayer(int idPlayer) {
+		try {
+			PreparedStatement completionsStmt = con.prepareStatement(GET_PLAYER);
+			completionsStmt.setInt(1, idPlayer);
+			ResultSet result = completionsStmt.executeQuery();
+			if (result.next()) {
+				return makePlayer(result);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 	/**
@@ -190,11 +236,12 @@ public class DatabaseRepository {
 	 * @param firstname   The firstname of the user
 	 * @param lastname    The lastname of the user
 	 * @param description The description of the user
-	 * @param sgroup       The group of the user
+	 * @param sgroup      The group of the user
 	 * @param avatar      The avatar of the user
 	 * @return True if the user was registered, false if an error occurred
 	 */
-	public int register(String pseudo, String email, String password, String firstname, String lastname, String description, String sgroup, String avatar) {
+	public int register(String pseudo, String email, String password, String firstname, String lastname,
+			String description, String sgroup, String avatar) {
 		Hash hash = Password.hash(password).withArgon2();
 		try {
 			ensureConnection();
@@ -207,9 +254,10 @@ public class DatabaseRepository {
 			statement.setString(6, description);
 			statement.setString(7, sgroup);
 			statement.setString(8, avatar);
-			if(statement.executeUpdate() == 1){
+			if (statement.executeUpdate() == 1) {
 				ResultSet inserted = statement.getGeneratedKeys();
-				if(inserted.next()) return inserted.getInt("id_player");
+				if (inserted.next())
+					return inserted.getInt("id_player");
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -220,7 +268,7 @@ public class DatabaseRepository {
 	/**
 	 * Login a user
 	 *
-	 * @param username    The username of the user
+	 * @param username The username of the user
 	 * @param password The password of the user
 	 * @return id the id of the user, -1 if not login successefuly
 	 */
@@ -232,97 +280,51 @@ public class DatabaseRepository {
 			ResultSet result = statement.executeQuery();
 			if (result.next()) {
 				String hashedPassword = result.getString("passwd");
-				if(Password.check(password, hashedPassword).withArgon2()) return result.getInt("id_player");
+				if (Password.check(password, hashedPassword).withArgon2())
+					return result.getInt("id_player");
 			}
 		} catch (SQLException e) {
 		}
 		return -1;
 	}
 
-	public byte[] getPuzzleSolution(int puzzleId) {
+	public Completion insertOrUpdatePuzzleResponse(int puzzleId, int userId, String fileName, byte[] code) {
 		try {
-			PreparedStatement puzzleStmt = con.prepareStatement(GET_PUZZLE_SOLUTION);
-			puzzleStmt.setInt(1, puzzleId);
-			ResultSet result = puzzleStmt.executeQuery();
-			if (result.next()) {
-				return result.getBytes("soluce");
-			}
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
-	
-	public int insertOrUpdatePuzzleResponse(int puzzleId, String pseudo, String fileName, byte[] code) {
-		try {
-			ensureConnection();
-			int[] triesAndScore = getPuzzleNbTriesAndScore(puzzleId, pseudo);
-			int playerId = getPlayerIdByPseudo(pseudo);
-			int puzzleScoreMax = getPuzzleScoreMax(puzzleId);
-			if (triesAndScore[0] < 0) {
-				// Insert completions
-				PreparedStatement statement = con.prepareStatement(INSERT_COMPLETION);
-				statement.setInt(1, puzzleId);
-				statement.setInt(2, playerId);
-				statement.setInt(3, 0);
-				statement.setBytes(4, code);
-				statement.setString(5, fileName);
-				statement.setInt(6, puzzleScoreMax);
-				return puzzleScoreMax;
+			Puzzle currentPuzzle = getPuzzle(puzzleId);
+			Completion completion = getCompletion(userId, puzzleId);
+			if (completion == null) {
+				insertCompletion(new Completion(userId, puzzleId, fileName, currentPuzzle.getScoreMax()));
 			} else {
-				// Update completions
-				int score = puzzleScoreMax * (((triesAndScore[0]-1)*10)/100);
-				PreparedStatement statement = con.prepareStatement(UPDATE_COMPLETION);
-				statement.setInt(1, triesAndScore[0]+1);
-				statement.setBytes(2, code);
-				statement.setString(3, fileName);
-				statement.setInt(4, score);
-				return score;
+				completion.addTry();
+				updateCompletion(completion);
 			}
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		return -1;
-	}
-	public int getPuzzleScoreMax(int puzzleId) {
-		try {
-			PreparedStatement puzzleStmt = con.prepareStatement(GET_PUZZLE_SCORE_MAX);
-			puzzleStmt.setInt(1, puzzleId);
-			ResultSet result = puzzleStmt.executeQuery();
-			if (result.next()) {
-				return result.getInt("score_max");
-			}
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		return -1;
-	}
-	public int[] getPuzzleNbTriesAndScore(int puzzleId, String pseudo) {
-		try {
-			PreparedStatement puzzleStmt = con.prepareStatement(GET_PUZZLE_NB_TRIES_AND_SCORE_BY_PLAYER);
-			puzzleStmt.setInt(1, puzzleId);
-			ResultSet result = puzzleStmt.executeQuery();
-			int[] res = new int[2];
-			if (result.next()) {
-				res[0] = result.getInt("tries");
-				res[1] = result.getInt("score");
-			}
+			return completion;
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 		return null;
 	}
-	private int getPlayerIdByPseudo(String pseudo) {
-		try {
-			PreparedStatement puzzleStmt = con.prepareStatement(GET_PLAYER_ID_BY_PSEUDO);
-			puzzleStmt.setString(1, pseudo);
-			ResultSet result = puzzleStmt.executeQuery();
-			if (result.next()) {
-				return result.getInt("id_player");
-			}
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		return -1;
+
+	private void insertCompletion(Completion newCompletion) throws SQLException {
+		// Insert completions
+		PreparedStatement statement = con.prepareStatement(INSERT_COMPLETION);
+		statement.setInt(1, newCompletion.getPuzzleId());
+		statement.setInt(2, newCompletion.getPlayerId());
+		statement.setInt(3, newCompletion.getTries());
+		statement.setBytes(4, newCompletion.getCode());
+		statement.setString(5, newCompletion.getFileName());
+		statement.setInt(6, newCompletion.getScore());
+		statement.executeUpdate();
+	}
+
+	private void updateCompletion(Completion completionToUpdate) throws SQLException {
+		// Update completions
+		PreparedStatement statement = con.prepareStatement(UPDATE_COMPLETION);
+		statement.setInt(1, completionToUpdate.getTries());
+		statement.setString(2, completionToUpdate.getFileName());
+		statement.setInt(3, completionToUpdate.getScore());
+		statement.setInt(4, completionToUpdate.getPuzzleId());
+		statement.setInt(5, completionToUpdate.getPlayerId());
+		statement.executeUpdate();
 	}
 }

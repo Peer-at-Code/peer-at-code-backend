@@ -1,15 +1,16 @@
 package be.jeffcheasey88.peeratcode.model;
 
 public class Player {
-	
+	public static final String PATH_TO_CODE = "/home/%s/peer-at-source/";
+
 	private String pseudo;
 	private String email;
 	private String firstname;
 	private String lastname;
 	private String description;
 	private String sgroup;
-	
-	public Player(String pseudo, String email, String firstname, String lastname, String description, String sgroup){
+
+	public Player(String pseudo, String email, String firstname, String lastname, String description, String sgroup) {
 		this.pseudo = pseudo;
 		this.email = email;
 		this.firstname = firstname;
@@ -17,29 +18,32 @@ public class Player {
 		this.description = description;
 		this.sgroup = sgroup;
 	}
-	
-	public String getPseudo(){
+
+	public String getPseudo() {
 		return this.pseudo;
 	}
-	
-	public String getEmail(){
+
+	public String getEmail() {
 		return this.email;
 	}
-	
-	public String getFirstname(){
+
+	public String getFirstname() {
 		return this.firstname;
 	}
-	
-	public String getLastname(){
+
+	public String getLastname() {
 		return this.lastname;
 	}
-	
-	public String getDescription(){
+
+	public String getDescription() {
 		return this.description;
 	}
-	
-	public String getGroup(){
+
+	public String getGroup() {
 		return this.sgroup;
 	}
 
+	public String getPathToSourceCode() {
+		return String.format(PATH_TO_CODE, pseudo);
+	}
 }
