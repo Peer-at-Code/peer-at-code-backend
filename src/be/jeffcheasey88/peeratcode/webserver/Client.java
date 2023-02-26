@@ -43,8 +43,7 @@ public class Client extends Thread{
 		            .setRequireExpirationTime()
 		            .setAllowedClockSkewInSeconds(30)
 		            .setRequireSubject()
-		            .setExpectedIssuer("Issuer")
-		            .setExpectedAudience("Audience")
+		            .setExpectedIssuer(this.router.getTokenIssuer())
 		            .setVerificationKey(this.router.getWebKey().getKey())
 		            .setJwsAlgorithmConstraints(
 		                    ConstraintType.PERMIT, AlgorithmIdentifiers.RSA_USING_SHA256)

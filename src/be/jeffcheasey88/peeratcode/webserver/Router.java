@@ -57,6 +57,10 @@ public class Router{
 		return this.rsaJsonWebKey;
 	}
 	
+	public String getTokenIssuer(){
+		return this.token_issuer;
+	}
+	
 	public String createAuthUser(int id) throws JoseException{
 		JwtClaims claims = new JwtClaims();
 	    claims.setIssuer(token_issuer);  // who creates the token and signs it
