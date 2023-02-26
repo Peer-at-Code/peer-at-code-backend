@@ -29,7 +29,7 @@ public class Login implements Response {
 
 	@Override
 	public void exec(Matcher matcher, User user, HttpReader reader, HttpWriter writer) throws Exception {
-		HttpUtil.skipHeaders(reader);
+		//HttpUtil.skipHeaders(reader);
 		JSONObject informations = (JSONObject) HttpUtil.readJson(reader);
 		if (informations != null) {
 			String pseudo = (String) informations.get("pseudo");

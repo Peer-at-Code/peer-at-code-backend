@@ -33,7 +33,7 @@ public class PuzzleResponse implements Response {
 			return;
 		}
 
-		HttpUtil.skipHeaders(reader);
+		//HttpUtil.skipHeaders(reader);
 
 		ReceivedResponse received = new ReceivedResponse(matcher, reader);
 		saveSourceCode(received, databaseRepo.getPlayer(user.getId()));

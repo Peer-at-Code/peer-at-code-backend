@@ -282,7 +282,7 @@ public class DatabaseRepository {
 			if (statement.executeUpdate() == 1) {
 				ResultSet inserted = statement.getGeneratedKeys();
 				if (inserted.next())
-					return inserted.getInt("id_player");
+					return inserted.getInt(1);
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();

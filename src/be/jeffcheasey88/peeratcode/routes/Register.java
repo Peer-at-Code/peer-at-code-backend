@@ -29,7 +29,7 @@ public class Register implements Response {
 
 	@Override
 	public void exec(Matcher matcher, User user, HttpReader reader, HttpWriter writer) throws Exception {
-		HttpUtil.skipHeaders(reader);
+		//HttpUtil.skipHeaders(reader);
 		JSONObject informations = (JSONObject) HttpUtil.readJson(reader);
 		if (informations != null) {
 			boolean allFieldsFilled = informations.containsKey("pseudo") && informations.containsKey("email")
