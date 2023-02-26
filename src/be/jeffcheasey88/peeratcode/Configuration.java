@@ -20,6 +20,8 @@ public class Configuration {
 	private String ssl_keystore;
 	private String ssl_keystorePasswd;
 
+	private String token_issuer;
+	
 	private File _file;
 	
 	public Configuration(String path){
@@ -119,6 +121,10 @@ public class Configuration {
 	
 	public String getSslKeystore(){
 		return this.ssl_keystore;
+	}
+	
+	public String getTokenIssuer(){
+		return this.token_issuer;
 	}
 	
 	public String getSslKeystorePasswd(){

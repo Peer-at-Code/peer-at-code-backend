@@ -19,9 +19,11 @@ public class Router{
 	private Response noFileFound;
 	private RsaJsonWebKey rsaJsonWebKey;
 	private DatabaseRepository repo;
+	private String token_issuer;
 	
-	public Router(DatabaseRepository repo) throws Exception{
+	public Router(DatabaseRepository repo, String token_issuer) throws Exception{
 		this.repo = repo;
+		this.token_issuer =  token_issuer;
 		this.responses = new ArrayList<>();
 		this.rsaJsonWebKey = RsaJwkGenerator.generateJwk(2048);
 	}
@@ -57,8 +59,7 @@ public class Router{
 	
 	public String createAuthUser(int id) throws JoseException{
 		JwtClaims claims = new JwtClaims();
-	    claims.setIssuer("Issuer");  // who creates the token and signs it
-	    claims.setAudience("Audience"); // to whom the token is intended to be sent
+	    claims.setIssuer(token_issuer);  // who creates the token and signs it
 	    claims.setExpirationTimeMinutesInTheFuture(10); // time when the token will expire (10 minutes from now)
 	    claims.setGeneratedJwtId(); // a unique identifier for the token
 	    claims.setIssuedAtToNow();  // when the token was issued/created (now)
