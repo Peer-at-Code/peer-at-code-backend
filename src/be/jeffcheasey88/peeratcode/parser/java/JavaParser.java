@@ -1,11 +1,22 @@
 package be.jeffcheasey88.peeratcode.parser.java;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 
 public class JavaParser {
+	
+	public static void main(String[] args) throws Exception {
+		File file = new File("C:\\Users\\jeffc\\eclipse-workspace\\JavaBenjaminCompiler\\src\\be\\jeffcheasey88\\parser\\rework\\Import.java");
+		BufferedReader reader = new BufferedReader(new FileReader(file));
+		
+		JavaParser parser = new JavaParser(reader);
+		parser.parse();
+		parser.show();
+	}
 	
 	private Package pack;
 	private List<Import> imports;
@@ -53,6 +64,14 @@ public class JavaParser {
 	
 	public Class getClazz(){
 		return this.clazz;
+	}
+	
+	public void show(){
+		System.out.println("package "+this.pack.getName()+";");
+		System.out.println();
+		for(Import i : this.imports) System.out.println("import "+i.getName()+";");
+		System.out.println();
+		this.clazz.show();
 	}
 	
 	public static int getModifier(String modifier){

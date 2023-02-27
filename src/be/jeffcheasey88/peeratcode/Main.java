@@ -49,7 +49,7 @@ public class Main {
 
 		Class.forName("com.mysql.cj.jdbc.Driver");
 
-		Router router = new Router(new DatabaseRepository(config), config.getTokenIssuer());
+		Router router = new Router(new DatabaseRepository(config), config.getTokenIssuer(), config.getTokenExpiration());
 
 		router.setDefault(new Response(){
 

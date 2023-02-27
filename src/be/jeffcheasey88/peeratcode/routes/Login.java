@@ -41,6 +41,7 @@ public class Login implements Response {
 			if ((id = databaseRepo.login(pseudo, password)) >= 0){
 				HttpUtil.responseHeaders(writer, 200,
 						"Access-Control-Allow-Origin: *",
+						"Access-Control-Expose-Headers: Authorization",
 						"Authorization: Bearer "+this.router.createAuthUser(id));
 				return;
 			}

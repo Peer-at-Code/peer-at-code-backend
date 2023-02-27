@@ -21,6 +21,7 @@ public class Configuration {
 	private String ssl_keystorePasswd;
 
 	private String token_issuer;
+	private int token_expiration;
 	
 	private File _file;
 	
@@ -125,6 +126,10 @@ public class Configuration {
 	
 	public String getTokenIssuer(){
 		return this.token_issuer;
+	}
+	
+	public int getTokenExpiration(){
+		return this.token_expiration;
 	}
 	
 	public String getSslKeystorePasswd(){

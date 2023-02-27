@@ -158,7 +158,7 @@ public class DatabaseRepository {
 			ResultSet result = playersStmt.executeQuery();
 			SortedSet<Player> players = new TreeSet<Player>();
 			Player tmpPlayer;
-			while (result.next()) {
+			while (result.next()){
 				tmpPlayer = makePlayer(result);
 				tmpPlayer.setTotalScore(result.getInt("playerScore"));
 				tmpPlayer.setTotalCompletion(result.getInt("playerCompletions"));

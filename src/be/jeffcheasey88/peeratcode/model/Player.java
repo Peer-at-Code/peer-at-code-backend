@@ -93,16 +93,17 @@ public class Player implements Comparable<Player> {
 	}
 
 	@Override
-	public int compareTo(Player arg0) {
-		if (this == arg0)
+	public int compareTo(Player other) {
+		if (this == other)
 			return 0;
-		if (arg0 == null)
+		if (other == null)
 			return -1;
-		int compare = Integer.compare(arg0.getTotalScore(), totalScore);
+		int compare = Integer.compare(other.getTotalScore(), totalScore);
 		if (compare == 0) {
-			compare =  Integer.compare(arg0.getTotalCompletion(), totalCompletion);
+			compare =  Integer.compare(other.getTotalCompletion(), totalCompletion);
 			if (compare == 0) {
-				compare =  Integer.compare(totalTries, arg0.getTotalTries());
+				compare =  Integer.compare(totalTries, other.getTotalTries());
+				if(compare == 0) compare = other.getPseudo().compareTo(pseudo);
 			}
 		}
 

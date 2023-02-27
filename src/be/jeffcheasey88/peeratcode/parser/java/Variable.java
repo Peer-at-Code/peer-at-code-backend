@@ -1,5 +1,6 @@
 package be.jeffcheasey88.peeratcode.parser.java;
 
+import java.lang.reflect.Modifier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -37,5 +38,11 @@ public class Variable {
 	
 	public String getType(){
 		return this.type;
+	}
+	
+	public void show(int tab){
+		String start = "";
+		for(int i = 0; i < tab; i++) start+="\t";
+		System.out.println(start+Modifier.toString(modifier)+" "+type+" "+name+";");
 	}
 }

@@ -1,5 +1,6 @@
 package be.jeffcheasey88.peeratcode.parser.java;
 
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -43,6 +44,7 @@ public class Class {
 				content = content.substring(index);
 			}else if(equals >= 0 && equals < braces){
 				//variable with value
+				System.out.println(content);
 				System.out.println("equals < braces");
 				break;
 			}else{
@@ -64,4 +66,9 @@ public class Class {
 		return this.name;
 	}
 	
+	public void show(){
+		System.out.println(Modifier.toString(modifier)+" "+this.name+"{");
+		for(Variable v : this.vars) v.show(1);
+		System.out.println("}");
+	}
 }

@@ -58,7 +58,9 @@ public class Register implements Response {
 				int id;
 				if ((id = databaseRepo.register(pseudo, email, password, firstname, lastname, description, group,
 						avatar)) >= 0) {
-					HttpUtil.responseHeaders(writer, 200, "Access-Control-Allow-Origin: *",
+					HttpUtil.responseHeaders(writer, 200,
+							"Access-Control-Allow-Origin: *",
+							"Access-Control-Expose-Headers: Authorization",
 							"Authorization: Bearer " + this.router.createAuthUser(id));
 					createFolderToSaveSourceCode(pseudo);
 					return;
