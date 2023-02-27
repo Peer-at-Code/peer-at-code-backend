@@ -6,7 +6,7 @@ import java.util.regex.Pattern;
 
 public class Variable {
 	
-	private static Pattern PATTERN = Pattern.compile("^(\\s*([^;]*);).*$");
+	private static Pattern PATTERN = Pattern.compile("^(\\s*)(.*)$");
 	
 	private int modifier;
 	private String name;
@@ -14,18 +14,21 @@ public class Variable {
 	
 	public Variable(){}
 	
+	//int i = 4;
+	//int i,j,k,l=1;
+	//int lm      ;
+	//public static int l;
+	//Test<Test>t;
+	//Test<Test,K,L>         j = new Test().schedule(p -> { return true;});
+	//int i =j=k=l=4;
+	
 	public int parse(String content) throws Exception{
+		System.out.println("Variable.parse");
+		System.out.println(content);
 		Matcher matcher = PATTERN.matcher(content);
 		matcher.matches();
 		
-		String[] split = matcher.group(2).split("\\s+");
-		for(int i = 0; i < split.length-2; i++){
-			this.modifier+=JavaParser.getModifier(split[i]);
-		}
-		this.name = split[split.length-1];
-		this.type = split[split.length-2];
-		
-		return matcher.group(1).length();
+		return 1;
 	}
 	
 	public int getModifier(){

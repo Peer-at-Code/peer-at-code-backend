@@ -34,12 +34,12 @@ public class Client extends Thread{
 			router.exec(headers[0], headers[1], isLogin(reader), reader, writer);
 			writer.flush();
 			writer.close();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		} catch (Exception e){}
 	}
 	
-	private User isLogin(HttpReader reader){
+	private User isLogin(HttpReader reader) throws Exception{
+		String auth = HttpUtil.readAutorization(reader);
+		if(auth == null) return null;
 		try {
 			JwtConsumer jwtConsumer = new JwtConsumerBuilder()
 		            .setRequireExpirationTime()
@@ -51,9 +51,11 @@ public class Client extends Thread{
 		                    ConstraintType.PERMIT, AlgorithmIdentifiers.RSA_USING_SHA256)
 		            .build();
 			
-	        JwtClaims jwtClaims = jwtConsumer.processToClaims(HttpUtil.readAutorization(reader));
+	        JwtClaims jwtClaims = jwtConsumer.processToClaims(auth);
 	        return new User(jwtClaims);
-		}catch(Exception e){}
+		}catch(Exception e){
+			HttpUtil.responseHeaders(writer, 401, "Access-Control-Allow-Origin: *");
+		}
 		return null;
 	}
 }

@@ -46,6 +46,10 @@ public class Class {
 				//variable with value
 				System.out.println(content);
 				System.out.println("equals < braces");
+				Variable variable = new Variable();
+				int index = variable.parse(content);
+				this.vars.add(variable);
+				content = content.substring(index);
 				break;
 			}else{
 				Function func = new Function();
