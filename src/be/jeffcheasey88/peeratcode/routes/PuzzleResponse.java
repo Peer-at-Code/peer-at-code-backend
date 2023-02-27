@@ -54,8 +54,6 @@ public class PuzzleResponse implements Response {
 			return;
 		}
 		writer.write(responseJSON.toJSONString());
-		writer.flush();
-		writer.close();
 	}
 
 	private void saveSourceCode(ReceivedResponse received, Player player) throws IOException {

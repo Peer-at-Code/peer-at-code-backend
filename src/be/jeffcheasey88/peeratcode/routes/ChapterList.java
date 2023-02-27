@@ -37,8 +37,6 @@ public class ChapterList implements Response {
 			}
 			writer.write(chaptersJSON.toJSONString());
 		}
-		writer.flush();
-		writer.close();
 	}
 
 	@Override

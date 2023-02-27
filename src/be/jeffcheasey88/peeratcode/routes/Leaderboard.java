@@ -41,8 +41,6 @@ public class Leaderboard implements Response {
 			}
 		}
 		writer.write(playersJSON.toJSONString());
-		writer.flush();
-		writer.close();
 	}
 
 	@Override

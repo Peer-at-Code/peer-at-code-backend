@@ -41,8 +41,6 @@ public class ChapterElement implements Response {
 			chapterJSON.put("puzzles", puzzles);
 			writer.write(chapterJSON.toJSONString());
 		}
-		writer.flush();
-		writer.close();
 	}
 
 	@Override

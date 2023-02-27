@@ -32,6 +32,8 @@ public class Client extends Thread{
 			System.out.println(Arrays.toString(headers));
 
 			router.exec(headers[0], headers[1], isLogin(reader), reader, writer);
+			writer.flush();
+			writer.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

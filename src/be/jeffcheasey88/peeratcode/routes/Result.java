@@ -33,8 +33,6 @@ public class Result implements Response{
 		}else{
 			HttpUtil.responseHeaders(writer, 200, "Access-Control-Allow-Origin: *");
 			writer.write(score+"");
-			writer.flush();
-			writer.close();
 		}
 	}
 

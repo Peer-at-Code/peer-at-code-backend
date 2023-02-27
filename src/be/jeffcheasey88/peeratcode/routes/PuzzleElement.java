@@ -35,8 +35,6 @@ public class PuzzleElement implements Response {
 			puzzleJSON.put("content", puzzle.getContent());
 			writer.write(puzzleJSON.toJSONString());
 		}
-		writer.flush();
-		writer.close();
 	}
 
 	@Override
