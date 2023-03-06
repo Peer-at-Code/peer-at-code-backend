@@ -1,6 +1,8 @@
 package be.jeffcheasey88.peeratcode.webserver;
 
 import java.security.MessageDigest;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -20,6 +22,26 @@ public class HttpUtil {
 	public static void skipHeaders(HttpReader reader) throws Exception{
 		String line;
 		while(((line = reader.readLine()) != null) && (line.length() > 0));
+	}
+	
+	public static List<String> readMultiPartData(HttpReader reader) throws Exception{
+		List<String> list = new ArrayList<>();
+		
+		reader.readLine();
+		
+		while(reader.ready()){
+			String line;
+			while(((line = reader.readLine()) != null) && (line.length() > 0)){
+				
+			}
+			String buffer = "";
+			while(((line = reader.readLine()) != null) && (!line.startsWith("------WebKitFormBoundary"))){
+				buffer+=line;
+			}
+			list.add(buffer);
+		}
+		
+		return list;
 	}
 	
 	public static void switchToWebSocket(HttpReader reader, HttpWriter writer) throws Exception{

@@ -66,6 +66,25 @@ public class Main {
 				writer.close();
 			}
 		});
+		
+		router.register(new Response(){
+			@Override
+			public Pattern getPattern() {
+				return Pattern.compile("^(.*)$");
+			}
+			@Override
+			public void exec(Matcher matcher, User user, HttpReader reader, HttpWriter writer) throws Exception {
+				HttpUtil.responseHeaders(writer, 200,
+						"Access-Control-Allow-Origin: *",
+						"Access-Control-Allow-Methods: *",
+						"Access-Control-Allow-Headers: *");
+			}
+			
+			@Override
+			public String getType() {
+				return "OPTIONS";
+			}
+		});
 
 		initRoutes(router);
 

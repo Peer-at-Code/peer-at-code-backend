@@ -5,6 +5,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -32,9 +33,6 @@ public class PuzzleResponse implements Response {
 			HttpUtil.responseHeaders(writer, 403, "Access-Control-Allow-Origin: *");
 			return;
 		}
-
-		HttpUtil.skipHeaders(reader);
-
 		ReceivedResponse received = new ReceivedResponse(matcher, reader);
 		saveSourceCode(received, databaseRepo.getPlayer(user.getId()));
 
@@ -74,6 +72,7 @@ public class PuzzleResponse implements Response {
 }
 
 class ReceivedResponse {
+	
 	private int puzzleId;
 	private byte[] response;
 	private String fileName;
@@ -84,33 +83,11 @@ class ReceivedResponse {
 	public ReceivedResponse(Matcher matcher, HttpReader reader) throws Exception {
 		this.reader = reader;
 		puzzleId = Integer.parseInt(matcher.group(1));
-		readResponse();
-		readFileName();
-		readSourceCode();
-	}
-
-	private void readResponse() throws Exception {
-		int hSize = reader.readInt();
-		response = new byte[hSize];
-		if (hSize != reader.read(response))
-			response = null;
-	}
-
-	private void readFileName() throws Exception {
-		byte[] tmpFileName;
-		int hSize = reader.readInt();
-		tmpFileName = new byte[hSize];
-		if (hSize == reader.read(tmpFileName))
-			fileName = tmpFileName.toString();
-		else
-			fileName = null;
-	}
-
-	private void readSourceCode() throws Exception {
-		int hSize = reader.readInt();
-		sourceCode = new byte[hSize];
-		if (hSize != reader.read(sourceCode))
-			sourceCode = null;
+		
+		List<String> multiPartData = HttpUtil.readMultiPartData(reader);
+		this.response = multiPartData.get(0).getBytes();
+		this.fileName = multiPartData.get(1);
+		this.sourceCode = multiPartData.get(2).getBytes();
 	}
 
 	public int getPuzzleId() {
