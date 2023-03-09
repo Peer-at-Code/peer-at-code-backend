@@ -11,6 +11,7 @@ import be.jeffcheasey88.peeratcode.webserver.User;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
+import java.util.Base64;
 import java.util.SortedSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -25,14 +26,15 @@ public class PlayerDetails implements Response {
 
 	@Override
 	public void exec(Matcher matcher, User user, HttpReader reader, HttpWriter writer) throws Exception {
-		HttpUtil.responseHeaders(writer, 200, "Access-Control-Allow-Origin: *");
-		int id = user.getId();
+		Player player;
 		if (matcher.groupCount() > 0) {
-			id = Integer.parseInt(matcher.group(1));
+			player = databaseRepo.getPlayerDetails(matcher.group(1));
+		} else {
+			player = databaseRepo.getPlayerDetails(user.getId());
 		}
-		Player player = databaseRepo.getPlayerDetails(id);
 		JSONObject playerJSON = new JSONObject();
 		if (player != null) {
+			HttpUtil.responseHeaders(writer, 200, "Access-Control-Allow-Origin: *");
 			playerJSON.put("pseudo", player.getPseudo());
 			playerJSON.put("email", player.getEmail());
 			playerJSON.put("firstname", player.getFirstname());
@@ -43,9 +45,12 @@ public class PlayerDetails implements Response {
 			playerJSON.put("completions", player.getTotalCompletion());
 			playerJSON.put("tries", player.getTotalTries());
 			playerJSON.put("badges", player.getBadges());
-			playerJSON.put("avatar", player.getAvatar());
+			//playerJSON.put("avatar", Base64.getEncoder().encode(player.getAvatar()).toString());
+			writer.write(playerJSON.toJSONString());
+			writer.write(player.getAvatar());
+		} else {
+			HttpUtil.responseHeaders(writer, 400, "Access-Control-Allow-Origin: *");
 		}
-		writer.write(playerJSON.toJSONString());
 	}
 
 	@Override
