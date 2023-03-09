@@ -1,6 +1,8 @@
 package be.jeffcheasey88.peeratcode.model;
 
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 public class Player implements Comparable<Player> {
 	public static final String PATH_TO_CODE = "/home/%s/peer-at-source/";
@@ -16,6 +18,8 @@ public class Player implements Comparable<Player> {
 	private int totalScore;
 	private int totalCompletion;
 	private int totalTries;
+	
+	private String badges; // To change to a set of model
 
 	public Player(String pseudo, String email, String firstname, String lastname, String description, String sgroup) {
 		this(pseudo, email, firstname, lastname, description, sgroup, null);
@@ -23,6 +27,10 @@ public class Player implements Comparable<Player> {
 
 	public Player(String pseudo, String email, String firstname, String lastname, String description, String sgroup,
 			byte[] avatar) {
+		this(pseudo, email, firstname, lastname, description, sgroup, null, null);
+	}
+	public Player(String pseudo, String email, String firstname, String lastname, String description, String sgroup,
+			byte[] avatar, String badges) {
 		this.pseudo = pseudo;
 		this.email = email;
 		this.firstname = firstname;
@@ -34,6 +42,8 @@ public class Player implements Comparable<Player> {
 		totalScore = 0;
 		totalCompletion = 0;
 		totalTries = 0;
+		
+		this.badges = null;
 	}
 
 	public String getPseudo() {
@@ -90,6 +100,13 @@ public class Player implements Comparable<Player> {
 
 	public void setTotalTries(int totalTries) {
 		this.totalTries = totalTries;
+	}
+	
+	public String getBadges() {
+		return badges;
+	}
+	public void setBadges(String initBadges) {
+		badges = initBadges;	
 	}
 
 	@Override
