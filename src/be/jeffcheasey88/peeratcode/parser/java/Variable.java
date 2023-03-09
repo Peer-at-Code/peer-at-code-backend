@@ -11,6 +11,7 @@ public class Variable {
 	private int modifier;
 	private String name;
 	private String type;
+	private Variable value;
 	
 	public Variable(){}
 	
@@ -27,8 +28,78 @@ public class Variable {
 		System.out.println(content);
 		Matcher matcher = PATTERN.matcher(content);
 		matcher.matches();
+
+		boolean hasEquals = false;
+		String body = matcher.group(2);
+		while(true){
+			int space = indexOf(body, "\\s+");
+			int equals = indexOf(body, "=");
+			int quote = indexOf(body,",");
+			int quotes = indexOf(body, ";");
+			int minus = indexOf(body, "<");
+			
+			
+			int min = min(space, equals, quote, quotes, minus);
+			String value = body.substring(0,min);
+			System.out.println("'"+value+"'");
+			if(hasEquals){
+				if(value.isEmpty()){
+					do {
+						body = body.substring(1);
+					}while(indexOf(body, "\\s+") == 0);
+					continue;
+				}
+				this.value = new Value(value);
+				body = body.substring(value.length()+1);
+				break;
+			
+			} else if(min == space){
+				if(value.isEmpty()){
+					do {
+						body = body.substring(1);
+					}while(indexOf(body, "\\s+") == 0);
+					continue;
+				}
+				int mod = JavaParser.getModifier(value);
+				if(mod > 0){
+					this.modifier+=mod;
+				}else{
+					if(type == null){
+						this.type = value;
+					}else if(name == null){
+						this.name = value;
+					}
+				}
+				body = body.substring(value.length()+1);
+			}else if(min == equals){
+					hasEquals = true;
+					body = body.substring(value.length()+1);
+			}else if(min == minus) {
+				System.out.println("MINUS");
+				break;
+			}else {
+				
+				break;
+			}
+		}
+		
+		System.out.println("-------------");
+		show(0);
+		System.out.println("-------------");
 		
 		return 1;
+	}
+	
+	private int indexOf(String value, String target){
+		return value.split(target)[0].length();
+	}
+	
+	private int min(int... mins){
+		int result = mins[0];
+		for(int min : mins){
+			if(min < result) result = min;
+		}
+		return result;
 	}
 	
 	public int getModifier(){
@@ -43,9 +114,27 @@ public class Variable {
 		return this.type;
 	}
 	
+	public Variable getValue(){
+		return this.value;
+	}
+	
 	public void show(int tab){
 		String start = "";
 		for(int i = 0; i < tab; i++) start+="\t";
+		System.out.println("type="+type+" | name="+name);
 		System.out.println(start+Modifier.toString(modifier)+" "+type+" "+name+";");
+	}
+	
+	public static class Value extends Variable{
+		
+		private String value;
+		
+		public Value(String value){
+			this.value = value;
+		}
+		
+		public String value(){
+			return this.value;
+		}
 	}
 }
