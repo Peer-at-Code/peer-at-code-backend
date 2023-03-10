@@ -23,7 +23,7 @@ import be.jeffcheasey88.peeratcode.model.Player;
 import be.jeffcheasey88.peeratcode.model.Puzzle;
 
 public class DatabaseRepository {
-	private static final String SPECIFIC_PUZZLE_QUERY = "SELECT * FROM puzzles WHERE id_puzzle = ?";
+	private static final String SPECIFIC_PUZZLE_QUERY = "SELECT p.*, np.origin FROM puzzles p LEFT JOIN nextPart np ON p.id_puzzle = np.next WHERE p.id_puzzle = ?;";
 	private static final String SPECIFIC_CHAPTER_QUERY = "SELECT * FROM chapters WHERE id_chapter = ?";
 	private static final String PUZZLES_IN_CHAPTER_QUERY = "SELECT * FROM puzzles WHERE fk_chapter = ?";
 	private static final String ALL_CHAPTERS_QUERY = "SELECT * FROM chapters WHERE id_chapter > 0";
@@ -38,13 +38,14 @@ public class DatabaseRepository {
 	private static final String GET_PLAYER_BY_PSEUDO = GET_PLAYER + "pseudo = ?";
 	private static final String GET_PLAYER_DETAILS = "SELECT p.pseudo, p.email, p.firstname, p.lastname, p.description, p.avatar, p.sgroup,\n"
 			+ "       SUM(c.score) AS playerScore, COUNT(c.id_completion) AS playerCompletions, SUM(c.tries) AS playerTries,\n"
-			+ "       GROUP_CONCAT(DISTINCT b.name ORDER BY b.name ASC SEPARATOR ', ') AS badges\n"
-			+ "FROM players p\n"
+			+ "       GROUP_CONCAT(DISTINCT b.name ORDER BY b.name ASC SEPARATOR ', ') AS badges\n" + "FROM players p\n"
 			+ "LEFT JOIN completions c ON p.id_player = c.fk_player\n"
 			+ "LEFT JOIN containsBadges cb ON p.id_player = cb.fk_player\n"
 			+ "LEFT JOIN badges b ON cb.fk_badge = b.id_badge\n";
-	private static final String GET_PLAYER_DETAILS_BY_ID = GET_PLAYER_DETAILS + "WHERE p.id_player = ? GROUP BY p.id_player;";
-	private static final String GET_PLAYER_DETAILS_BY_PSEUDO = GET_PLAYER_DETAILS + "WHERE p.pseudo = ? GROUP BY p.pseudo;";
+	private static final String GET_PLAYER_DETAILS_BY_ID = GET_PLAYER_DETAILS
+			+ "WHERE p.id_player = ? GROUP BY p.id_player;";
+	private static final String GET_PLAYER_DETAILS_BY_PSEUDO = GET_PLAYER_DETAILS
+			+ "WHERE p.pseudo = ? GROUP BY p.pseudo;";
 	private static final String ALL_PLAYERS_FOR_LEADERBOARD = "SELECT p.*, sum(c.score) AS playerScore, count(c.id_completion) AS playerCompletions, sum(c.tries) AS playerTries FROM players p LEFT JOIN completions c ON c.fk_player = p.id_player GROUP BY p.id_player ORDER BY playerScore DESC";
 	private static final String GET_BADGE = "SELECT * FROM badges WHERE id_badge = ?";
 	private static final String INSERT_COMPLETION = "INSERT INTO completions (fk_puzzle, fk_player, tries, code, fileName, score) values (?, ?, ?, ?, ?, ?)";
@@ -67,7 +68,7 @@ public class DatabaseRepository {
 
 	private Puzzle makePuzzle(ResultSet puzzleResult) throws SQLException {
 		return new Puzzle(puzzleResult.getInt("id_puzzle"), puzzleResult.getString("name"),
-				puzzleResult.getString("content"), null, "", 0);
+				puzzleResult.getString("content"), null, "", 0, puzzleResult.getInt("origin"));
 	}
 
 	private Chapter makeChapter(ResultSet chapterResult) throws SQLException {
@@ -95,21 +96,21 @@ public class DatabaseRepository {
 		}
 		return p;
 	}
-	
+
 	private Badge makeBadge(ResultSet rs) throws SQLException {
 		return new Badge(rs.getString("name"), rs.getBytes("logo"), rs.getInt("level"));
 	}
-	
+
 	private boolean hasColumn(ResultSet rs, String columnName) throws SQLException {
 		// Found on StackOverflow
-	    ResultSetMetaData rsmd = rs.getMetaData();
-	    int columns = rsmd.getColumnCount();
-	    for (int x = 1; x <= columns; x++) {
-	        if (columnName.equals(rsmd.getColumnName(x))) {
-	            return true;
-	        }
-	    }
-	    return false;
+		ResultSetMetaData rsmd = rs.getMetaData();
+		int columns = rsmd.getColumnCount();
+		for (int x = 1; x <= columns; x++) {
+			if (columnName.equals(rsmd.getColumnName(x))) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	private List<Puzzle> getPuzzlesInChapter(int id) throws SQLException {
@@ -189,7 +190,7 @@ public class DatabaseRepository {
 		}
 		return null;
 	}
-	
+
 	public Player getPlayerDetails(int idPlayer) {
 		try {
 			ensureConnection();
@@ -204,6 +205,7 @@ public class DatabaseRepository {
 		}
 		return null;
 	}
+
 	public Player getPlayerDetails(String pseudoPlayer) {
 		try {
 			ensureConnection();
@@ -226,7 +228,7 @@ public class DatabaseRepository {
 			ResultSet result = playersStmt.executeQuery();
 			SortedSet<Player> players = new TreeSet<Player>();
 			Player tmpPlayer;
-			while (result.next()){
+			while (result.next()) {
 				tmpPlayer = makePlayer(result);
 				players.add(tmpPlayer);
 			}
@@ -251,7 +253,7 @@ public class DatabaseRepository {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Get a specific chapter
 	 *

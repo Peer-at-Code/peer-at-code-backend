@@ -8,14 +8,19 @@ public class Puzzle {
 	private byte[] soluce;
 	private String verify;
 	private int scoreMax;
+	private int depend;
 
 	public Puzzle(int id, String name, String content, byte[] soluce, String verify, int scoreMax){
+		this(id, name, content, soluce, verify, scoreMax, -1);	
+	}
+	public Puzzle(int id, String name, String content, byte[] soluce, String verify, int scoreMax, int depend){
 		this.id = id;
 		this.name = name;
 		this.content = content;
 		this.soluce = soluce;
 		this.verify = verify;
 		this.scoreMax = scoreMax;
+		this.depend = depend;
 	}
 
 	public int getId() {
@@ -64,6 +69,14 @@ public class Puzzle {
 	
 	public void setScoreMax(int max){
 		this.scoreMax = max;
+	}
+	
+	public int getDepend(){
+		return this.depend;
+	}
+	
+	public void setDepend(int depend){
+		this.depend = depend;
 	}
 
 	@Override
