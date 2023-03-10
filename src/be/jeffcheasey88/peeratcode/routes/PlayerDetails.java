@@ -11,6 +11,7 @@ import be.jeffcheasey88.peeratcode.webserver.User;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.SortedSet;
 import java.util.regex.Matcher;
@@ -45,9 +46,8 @@ public class PlayerDetails implements Response {
 			playerJSON.put("completions", player.getTotalCompletion());
 			playerJSON.put("tries", player.getTotalTries());
 			playerJSON.put("badges", player.getBadges());
-			//playerJSON.put("avatar", Base64.getEncoder().encode(player.getAvatar()).toString());
+			if(player.getAvatar() != null) playerJSON.put("avatar", new String(Base64.getEncoder().encode(player.getAvatar())));
 			writer.write(playerJSON.toJSONString());
-			writer.write(player.getAvatar());
 		} else {
 			HttpUtil.responseHeaders(writer, 400, "Access-Control-Allow-Origin: *");
 		}

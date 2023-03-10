@@ -16,7 +16,6 @@ import com.password4j.Hash;
 import com.password4j.Password;
 
 import be.jeffcheasey88.peeratcode.Configuration;
-import be.jeffcheasey88.peeratcode.model.Badge;
 import be.jeffcheasey88.peeratcode.model.Chapter;
 import be.jeffcheasey88.peeratcode.model.Completion;
 import be.jeffcheasey88.peeratcode.model.Player;

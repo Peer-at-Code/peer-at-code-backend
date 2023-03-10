@@ -27,7 +27,7 @@ public class Player implements Comparable<Player> {
 
 	public Player(String pseudo, String email, String firstname, String lastname, String description, String sgroup,
 			byte[] avatar) {
-		this(pseudo, email, firstname, lastname, description, sgroup, null, null);
+		this(pseudo, email, firstname, lastname, description, sgroup, avatar, null);
 	}
 	public Player(String pseudo, String email, String firstname, String lastname, String description, String sgroup,
 			byte[] avatar, String badges) {
