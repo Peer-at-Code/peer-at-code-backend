@@ -26,6 +26,7 @@ import org.jose4j.jwt.consumer.JwtConsumerBuilder;
 import org.jose4j.lang.JoseException;
 
 import be.jeffcheasey88.peeratcode.repository.DatabaseRepository;
+import be.jeffcheasey88.peeratcode.routes.BadgeDetails;
 import be.jeffcheasey88.peeratcode.routes.ChapterElement;
 import be.jeffcheasey88.peeratcode.routes.ChapterList;
 import be.jeffcheasey88.peeratcode.routes.Leaderboard;
@@ -102,6 +103,7 @@ public class Main {
 		router.register(new PuzzleResponse(router.getDataBase()));
 		router.register(new Leaderboard(router.getDataBase()));
 		router.register(new PlayerDetails(router.getDataBase()));
+		router.register(new BadgeDetails(router.getDataBase()));
 	}
 
 	private static void startWebServer(Configuration config, Router router) throws IOException {
