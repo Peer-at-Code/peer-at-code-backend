@@ -30,6 +30,7 @@ public class Variable {
 		matcher.matches();
 
 		boolean hasEquals = false;
+		boolean fromMinus = false;
 		String body = matcher.group(2);
 		while(true){
 			int space = indexOf(body, "\\s+");
@@ -52,7 +53,11 @@ public class Variable {
 				this.value = new Value(value);
 				body = body.substring(value.length()+1);
 				break;
-			
+			}else if(fromMinus){
+				System.out.println("fromMinus "+value);
+				this.name = value;
+				body = body.substring(value.length()+1);
+				break;
 			} else if(min == space){
 				if(value.isEmpty()){
 					do {
@@ -74,11 +79,32 @@ public class Variable {
 			}else if(min == equals){
 					hasEquals = true;
 					body = body.substring(value.length()+1);
-			}else if(min == minus) {
+			}else if(min == minus){
+				value = value+"<";
 				System.out.println("MINUS");
+				int maxus = 1;
+				while(maxus > 0){
+					char current = body.charAt(value.length());
+					value+=current;
+					if(current == '<'){
+						maxus++;
+					}
+					if(current == '>'){
+						maxus--;
+					}
+				}
+				this.type = value;
+				body = body.substring(value.length());
+				while(indexOf(body, "\\s+") == 0){
+					body = body.substring(1);
+				}
+				fromMinus = true;
+				System.out.println("fromMinus on "+body);
+			}else if(min == quote){
+				this.name = value;
+				body = body.substring(value.length());
 				break;
 			}else {
-				
 				break;
 			}
 		}

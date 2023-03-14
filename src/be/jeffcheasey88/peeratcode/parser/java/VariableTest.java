@@ -67,11 +67,26 @@ class VariableTest {
 	void case4(){
 		try {
 			Variable variable = new Variable();
-			variable.parse("Test<Test>t;   ");
+			variable.parse("Testas<Test>t;   ");
 			
 			assertEquals(0, variable.getModifier());
-			assertEquals("Test<Test>", variable.getType());
+			assertEquals("Testas<Test>", variable.getType());
 			assertEquals("t", variable.getName());
+			assertNull(variable.getValue());
+		}catch(Exception e){
+			fail(e);
+		}
+	}
+
+	@Test
+	void case5(){
+		try {
+			Variable variable = new Variable();
+			variable.parse("  int i,j,k,l=1;   ");
+			
+			assertEquals(0, variable.getModifier());
+			assertEquals("int", variable.getType());
+			assertEquals("i", variable.getName());
 			assertNull(variable.getValue());
 		}catch(Exception e){
 			fail(e);

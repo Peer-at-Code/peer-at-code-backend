@@ -68,7 +68,7 @@ public class DatabaseRepository {
 
 	private Puzzle makePuzzle(ResultSet puzzleResult) throws SQLException {
 		return new Puzzle(puzzleResult.getInt("id_puzzle"), puzzleResult.getString("name"),
-				puzzleResult.getString("content"), null, "", 0, puzzleResult.getInt("origin"));
+				puzzleResult.getString("content"), null, "", 0, hasColumn(puzzleResult, "origin") ? puzzleResult.getInt("origin") : -1);
 	}
 
 	private Chapter makeChapter(ResultSet chapterResult) throws SQLException {
