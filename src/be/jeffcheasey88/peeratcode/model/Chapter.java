@@ -1,5 +1,7 @@
 package be.jeffcheasey88.peeratcode.model;
 
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public class Chapter {
@@ -7,10 +9,14 @@ public class Chapter {
 	private int id;
 	private String name;
 	private List<Puzzle> puzzles;
+	private Timestamp startDate;
+	private Timestamp endDate;
 
-	public Chapter(int id, String name) {
+	public Chapter(int id, String name, Timestamp startDate, Timestamp endDate) {
 		this.id = id;
 		this.name = name;
+		this.startDate = startDate;
+		this.endDate = endDate;
 	}
 
 	public int getId() {
@@ -35,6 +41,14 @@ public class Chapter {
 
 	public void setPuzzles(List<Puzzle> puzzles) {
 		this.puzzles = puzzles;
+	}
+	
+	public Timestamp getStartDate() {
+		return startDate;
+	}
+	
+	public Timestamp getEndDate() {
+		return endDate;
 	}
 
 	@Override

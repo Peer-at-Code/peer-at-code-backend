@@ -31,6 +31,8 @@ public class ChapterElement implements Response {
 			JSONObject chapterJSON = new JSONObject();
 			chapterJSON.put("id", chapter.getId());
 			chapterJSON.put("name", chapter.getName());
+			if (chapter.getStartDate() != null) chapterJSON.put("startDate", chapter.getStartDate());
+			if (chapter.getEndDate() != null) chapterJSON.put("endDate", chapter.getEndDate());
 			JSONArray puzzles = new JSONArray();
 			for (Puzzle puzzle : chapter.getPuzzles()) {
 				JSONObject puzzleJSON = new JSONObject();
