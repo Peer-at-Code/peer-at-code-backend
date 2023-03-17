@@ -23,9 +23,9 @@ import be.jeffcheasey88.peeratcode.model.Player;
 import be.jeffcheasey88.peeratcode.model.Puzzle;
 
 public class DatabaseRepository {
-	private static final String SPECIFIC_PUZZLE_QUERY = "SELECT p.*, np.origin FROM puzzles p LEFT JOIN nextPart np ON p.id_puzzle = np.next WHERE p.id_puzzle = ?;";
+	private static final String SPECIFIC_PUZZLE_QUERY = "SELECT p.*, np.origin, GROUP_CONCAT(t.name) AS tags FROM puzzles p LEFT JOIN nextPart np ON p.id_puzzle = np.next LEFT JOIN containsTags ct ON ct.fk_puzzle = p.id_puzzle LEFT JOIN tags t ON t.id_tag = ct.fk_tag WHERE p.id_puzzle = ? GROUP BY p.id_puzzle";
 	private static final String SPECIFIC_CHAPTER_QUERY = "SELECT * FROM chapters WHERE id_chapter = ?";
-	private static final String PUZZLES_IN_CHAPTER_QUERY = "SELECT * FROM puzzles WHERE fk_chapter = ?";
+	private static final String PUZZLES_IN_CHAPTER_QUERY = "SELECT p.*, GROUP_CONCAT(t.name) AS tags FROM puzzles p LEFT JOIN containsTags ct ON ct.fk_puzzle = p.id_puzzle LEFT JOIN tags t ON t.id_tag = ct.fk_tag WHERE fk_chapter = ? GROUP BY p.id_puzzle";
 	private static final String ALL_CHAPTERS_QUERY = "SELECT * FROM chapters WHERE id_chapter > 0";
 	private static final String CHECK_PSEUDO_AVAILABLE_QUERY = "SELECT * FROM players WHERE pseudo = ?";
 	private static final String CHECK_EMAIL_AVAILABLE_QUERY = "SELECT * FROM players WHERE email = ?";
@@ -69,7 +69,7 @@ public class DatabaseRepository {
 
 	private Puzzle makePuzzle(ResultSet puzzleResult) throws SQLException {
 		return new Puzzle(puzzleResult.getInt("id_puzzle"), puzzleResult.getString("name"),
-				puzzleResult.getString("content"), null, "", 0,
+				puzzleResult.getString("content"), null, "", 0, puzzleResult.getString("tags"),
 				hasColumn(puzzleResult, "origin") ? puzzleResult.getInt("origin") : -1);
 	}
 
