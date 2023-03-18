@@ -20,11 +20,6 @@ public class Result implements Response{
 
 	@Override
 	public void exec(Matcher matcher, User user, HttpReader reader, HttpWriter writer) throws Exception {
-		if(user == null){
-			HttpUtil.responseHeaders(writer, 403, "Access-Control-Allow-Origin: *");
-			return;
-		}
-		
 		int puzzle = Integer.parseInt(matcher.group(1));
 		
 		int score = this.repo.getScore(user.getId(), puzzle);
@@ -41,5 +36,8 @@ public class Result implements Response{
 		return Pattern.compile("^\\/result\\/(\\d+)$");
 	}
 	
-
+	@Override
+	public boolean needLogin(){
+		return true;
+	}
 }

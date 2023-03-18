@@ -54,7 +54,6 @@ public class Client extends Thread{
 	        JwtClaims jwtClaims = jwtConsumer.processToClaims(auth);
 	        return new User(jwtClaims);
 		}catch(Exception e){
-			e.printStackTrace();
 			HttpUtil.responseHeaders(writer, 401, "Access-Control-Allow-Origin: *");
 		}
 		return null;

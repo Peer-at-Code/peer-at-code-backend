@@ -47,6 +47,7 @@ public class Router{
 			if(type.equals(response.getType())){
 				Matcher matcher = response.getPattern().matcher(path);
 				if(matcher.matches()){
+					if(user == null && response.needLogin()) return;
 					response.exec(matcher, user, reader, writer);
 					return;
 				}

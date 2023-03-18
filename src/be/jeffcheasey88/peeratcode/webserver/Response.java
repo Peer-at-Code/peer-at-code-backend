@@ -10,4 +10,6 @@ public interface Response{
 	Pattern getPattern();
 	
 	default String getType(){ return "GET"; }
+	
+	default boolean needLogin() { return false; }
 }

@@ -29,10 +29,6 @@ public class PuzzleResponse implements Response {
 
 	@Override
 	public void exec(Matcher matcher, User user, HttpReader reader, HttpWriter writer) throws Exception {
-		if (user == null) {
-			HttpUtil.responseHeaders(writer, 403, "Access-Control-Allow-Origin: *");
-			return;
-		}
 		ReceivedResponse received = new ReceivedResponse(matcher, reader);
 		saveSourceCode(received, databaseRepo.getPlayer(user.getId()));
 
@@ -68,6 +64,11 @@ public class PuzzleResponse implements Response {
 	@Override
 	public String getType() {
 		return "POST";
+	}
+	
+	@Override
+	public boolean needLogin(){
+		return true;
 	}
 }
 
