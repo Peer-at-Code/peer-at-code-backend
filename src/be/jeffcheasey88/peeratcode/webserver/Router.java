@@ -73,6 +73,8 @@ public class Router{
 	    
 	    claims.setClaim("id", id);
 	    
+	    claims.setSubject("Nani ???");
+	    
 	    JsonWebSignature jws = new JsonWebSignature();
 	    jws.setPayload(claims.toJson());
 	    jws.setKey(rsaJsonWebKey.getPrivateKey());

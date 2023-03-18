@@ -7,7 +7,7 @@ public class User {
 	private int id;
 	
 	public User(JwtClaims jwtClaims){
-		this.id = (int) jwtClaims.getClaimValue("id");
+		this.id = ((Long)jwtClaims.getClaimValue("id")).intValue();
 	}
 	
 	public int getId(){

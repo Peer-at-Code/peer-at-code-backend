@@ -34,22 +34,31 @@ public class Class {
 		content = matcher.group(3);
 		Pattern empty = Pattern.compile("^\\s*$");
 		while(!(empty.matcher(content).matches())){
-			int quotes = content.indexOf(';');
-			int braces = content.indexOf('{');
-			int equals = content.indexOf('=');
+			int quotes = indexOf(content,";");
+			int braces = indexOf(content,"\\{");
+			int equals = indexOf(content,"=");
 			if(quotes < braces && quotes < equals){
 				Variable variable = new Variable();
 				int index = variable.parse(content);
 				this.vars.add(variable);
 				content = content.substring(index);
-			}else if(equals >= 0 && equals < braces){
+			}else if(equals < braces){
 				//variable with value
 				System.out.println(content);
 				System.out.println("equals < braces");
-				Variable variable = new Variable();
-				int index = variable.parse(content);
-				this.vars.add(variable);
-				content = content.substring(index);
+				boolean quote = false;
+				Variable last = null;
+				do {
+					Variable variable = (last == null) ? new Variable() : new Variable(last.getModifier(), last.getType());
+					int index = variable.parse(content);
+					this.vars.add(variable);
+					content = content.substring(index);
+					quote = content.startsWith(",");
+					if(quote) {
+						content = content.substring(1);
+						last = variable;
+					}
+				}while(quote);
 				break;
 			}else{
 				Function func = new Function();
@@ -62,12 +71,20 @@ public class Class {
 		return matcher.group(1).length();
 	}
 	
+	private int indexOf(String value, String target){
+		return value.split(target)[0].length();
+	}
+	
 	public int getModifier(){
 		return this.modifier;
 	}
 	
 	public String getName(){
 		return this.name;
+	}
+	
+	public List<Variable> getVariables(){
+		return this.vars;
 	}
 	
 	public void show(){

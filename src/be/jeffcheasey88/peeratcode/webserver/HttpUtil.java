@@ -74,9 +74,9 @@ public class HttpUtil {
 		return key;
 	}
 	
-	private static Pattern AUTORIZATION = Pattern.compile("Autorization: Bearer (.*)");
+	private static Pattern AUTORIZATION = Pattern.compile("Authorization: Bearer (.*)");
 	
-	public static String readAutorization(HttpReader reader) throws Exception {
+	public static String readAuthorization(HttpReader reader) throws Exception {
 		String line;
 		String key = null;
 		while(((line = reader.readLine()) != null) && (line.length() > 0)){

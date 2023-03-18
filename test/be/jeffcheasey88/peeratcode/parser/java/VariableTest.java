@@ -4,6 +4,8 @@ import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import java.util.List;
+
 import org.junit.jupiter.api.Test;
 
 import be.jeffcheasey88.peeratcode.parser.java.Variable.Value;
@@ -92,4 +94,55 @@ class VariableTest {
 			fail(e);
 		}
 	}
+	
+	@Test
+	void case6(){
+		try {
+			Class clazz = new Class();
+			clazz.parse("public class Test{  int i ,j,k,l=1;  } ");
+
+			List<Variable> vars = clazz.getVariables();
+			assertEquals(vars.size(), 4);
+			for(int i = 0; i < 3; i++){
+				Variable v = vars.get(i);
+				assertEquals(0, v.getModifier());
+				assertEquals("int", v.getType());
+				assertEquals((char)('i'+i), v.getName().charAt(0));
+				assertNull(v.getValue());
+			}
+			Variable v = vars.get(3);
+			assertEquals(0, v.getModifier());
+			assertEquals("int", v.getType());
+			assertEquals('l', v.getName().charAt(0));
+			assertEquals("1", ((Value)v.getValue()).value());
+		}catch(Exception e){
+			fail(e);
+		}
+	}
+	
+	@Test
+	void case7(){
+		try {
+			Class clazz = new Class();
+			clazz.parse("public class Test{  int i =j=k=l=4;  } ");
+
+			List<Variable> vars = clazz.getVariables();
+			assertEquals(vars.size(), 4);
+			for(int i = 0; i < 3; i++){
+				Variable v = vars.get(i);
+				assertEquals(0, v.getModifier());
+				assertEquals("int", v.getType());
+				assertEquals((char)('i'+i), v.getName().charAt(0));
+				assertEquals((char)('i'+i+1), ((Value)v.getValue()).value());
+			}
+			Variable v = vars.get(3);
+			assertEquals(0, v.getModifier());
+			assertEquals("int", v.getType());
+			assertEquals('l', v.getName().charAt(0));
+			assertEquals("4", ((Value)v.getValue()).value());
+		}catch(Exception e){
+			fail(e);
+		}
+	}
+	
 }

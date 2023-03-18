@@ -28,7 +28,7 @@ public class PlayerDetails implements Response {
 	@Override
 	public void exec(Matcher matcher, User user, HttpReader reader, HttpWriter writer) throws Exception {
 		Player player;
-		if (matcher.groupCount() > 0) {
+		if (matcher.group(1) != null){
 			player = databaseRepo.getPlayerDetails(matcher.group(1));
 		} else {
 			player = databaseRepo.getPlayerDetails(user.getId());

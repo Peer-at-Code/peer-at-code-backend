@@ -38,7 +38,7 @@ public class Client extends Thread{
 	}
 	
 	private User isLogin(HttpReader reader) throws Exception{
-		String auth = HttpUtil.readAutorization(reader);
+		String auth = HttpUtil.readAuthorization(reader);
 		if(auth == null) return null;
 		try {
 			JwtConsumer jwtConsumer = new JwtConsumerBuilder()
@@ -54,6 +54,7 @@ public class Client extends Thread{
 	        JwtClaims jwtClaims = jwtConsumer.processToClaims(auth);
 	        return new User(jwtClaims);
 		}catch(Exception e){
+			e.printStackTrace();
 			HttpUtil.responseHeaders(writer, 401, "Access-Control-Allow-Origin: *");
 		}
 		return null;

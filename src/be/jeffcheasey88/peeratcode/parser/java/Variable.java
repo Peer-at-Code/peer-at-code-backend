@@ -15,6 +15,11 @@ public class Variable {
 	
 	public Variable(){}
 	
+	public Variable(int modifier, String type){
+		this.modifier = modifier;
+		this.type = type;
+	}
+	
 	//int i = 4;
 	//int i,j,k,l=1;
 	//int lm      ;
@@ -28,6 +33,8 @@ public class Variable {
 		System.out.println(content);
 		Matcher matcher = PATTERN.matcher(content);
 		matcher.matches();
+		
+		int offset = matcher.group(1).length();
 
 		boolean hasEquals = false;
 		boolean fromMinus = false;
@@ -47,21 +54,25 @@ public class Variable {
 				if(value.isEmpty()){
 					do {
 						body = body.substring(1);
+						offset++;
 					}while(indexOf(body, "\\s+") == 0);
 					continue;
 				}
 				this.value = new Value(value);
 				body = body.substring(value.length()+1);
+				offset+=value.length()+1;
 				break;
 			}else if(fromMinus){
 				System.out.println("fromMinus "+value);
 				this.name = value;
 				body = body.substring(value.length()+1);
+				offset+=value.length()+1;
 				break;
 			} else if(min == space){
 				if(value.isEmpty()){
 					do {
 						body = body.substring(1);
+						offset++;
 					}while(indexOf(body, "\\s+") == 0);
 					continue;
 				}
@@ -76,9 +87,12 @@ public class Variable {
 					}
 				}
 				body = body.substring(value.length()+1);
+				offset+=value.length()+1;
 			}else if(min == equals){
+					if(this.name == null) this.name = value;
 					hasEquals = true;
 					body = body.substring(value.length()+1);
+					offset+=value.length()+1;
 			}else if(min == minus){
 				value = value+"<";
 				System.out.println("MINUS");
@@ -95,16 +109,21 @@ public class Variable {
 				}
 				this.type = value;
 				body = body.substring(value.length());
+				offset+=value.length();
 				while(indexOf(body, "\\s+") == 0){
 					body = body.substring(1);
+					offset++;
 				}
 				fromMinus = true;
 				System.out.println("fromMinus on "+body);
 			}else if(min == quote){
+				if(this.name != null) break;
 				this.name = value;
 				body = body.substring(value.length());
+				offset+=value.length();
 				break;
 			}else {
+				offset+=value.length()+1;
 				break;
 			}
 		}
@@ -113,7 +132,7 @@ public class Variable {
 		show(0);
 		System.out.println("-------------");
 		
-		return 1;
+		return offset;
 	}
 	
 	private int indexOf(String value, String target){
