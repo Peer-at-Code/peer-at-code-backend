@@ -7,9 +7,4 @@ public interface Response{
 
 	void exec(Matcher matcher, User user, HttpReader reader, HttpWriter writer) throws Exception ;
 	
-	Pattern getPattern();
-	
-	default String getType(){ return "GET"; }
-	
-	default boolean needLogin() { return false; }
 }

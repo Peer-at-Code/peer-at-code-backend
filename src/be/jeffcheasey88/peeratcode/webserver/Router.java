@@ -1,8 +1,11 @@
 package be.jeffcheasey88.peeratcode.webserver;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.jose4j.jwk.RsaJsonWebKey;
 import org.jose4j.jwk.RsaJwkGenerator;
@@ -15,7 +18,8 @@ import be.jeffcheasey88.peeratcode.repository.DatabaseRepository;
 
 public class Router{
 	
-	private List<Response> responses;
+	private Map<Response, Route> responses;
+	private Map<Response, Pattern> patterns;
 	private Response noFileFound;
 	private RsaJsonWebKey rsaJsonWebKey;
 	private DatabaseRepository repo;
@@ -26,7 +30,8 @@ public class Router{
 		this.repo = repo;
 		this.token_issuer =  token_issuer;
 		this.token_expiration = token_expiration;
-		this.responses = new ArrayList<>();
+		this.responses = new HashMap<>();
+		this.patterns = new HashMap<>();
 		this.rsaJsonWebKey = RsaJwkGenerator.generateJwk(2048);
 	}
 	
@@ -35,7 +40,15 @@ public class Router{
 	}
 	
 	public void register(Response response){
-		this.responses.add(response);
+		try {
+			Method method = response.getClass().getDeclaredMethod("exec");
+			Route route = method.getAnnotation(Route.class);
+			
+			this.responses.put(response, route);
+			this.patterns.put(response, Pattern.compile(route.path()));
+		} catch (Exception e){
+			throw new IllegalArgumentException(e);
+		}
 	}
 	
 	public void setDefault(Response response){
@@ -43,12 +56,12 @@ public class Router{
 	}
 
 	public void exec(String type, String path, User user, HttpReader reader, HttpWriter writer) throws Exception {
-		for(Response response : this.responses){
-			if(type.equals(response.getType())){
-				Matcher matcher = response.getPattern().matcher(path);
+		for(Entry<Response, Route> routes : this.responses.entrySet()){
+			if(routes.getValue().type().equals(type)){
+				Matcher matcher = this.patterns.get(routes.getKey()).matcher(path);
 				if(matcher.matches()){
-					if(user == null && response.needLogin()) return;
-					response.exec(matcher, user, reader, writer);
+					if(user == null && routes.getValue().needLogin()) return;
+					routes.getKey().exec(matcher, user, reader, writer);
 					return;
 				}
 			}

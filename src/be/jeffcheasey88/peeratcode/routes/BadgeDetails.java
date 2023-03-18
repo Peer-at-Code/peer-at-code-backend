@@ -34,10 +34,10 @@ public class BadgeDetails implements Response {
 			JSONObject badgeJSON = new JSONObject();
 			if (badge != null) {
 				badgeJSON.put("name", badge.getName());
-				if(badge.getLogo() != null) badgeJSON.put("logo", new String(Base64.getEncoder().encode(badge.getLogo())));
+				if(badge.getLogo() != null) badgeJSON.put("logo", Base64.getEncoder().encodeToString(badge.getLogo()));
 				badgeJSON.put("level", badge.getLevel());
 			}
-			writer.write(badgeJSON.toJSONString());
+			writer.write(badgeJSON.toJSONString().replace("\\", ""));
 		}
 		else {
 			HttpUtil.responseHeaders(writer, 400, "Access-Control-Allow-Origin: *");

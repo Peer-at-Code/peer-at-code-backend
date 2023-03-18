@@ -14,6 +14,7 @@ import be.jeffcheasey88.peeratcode.webserver.HttpReader;
 import be.jeffcheasey88.peeratcode.webserver.HttpUtil;
 import be.jeffcheasey88.peeratcode.webserver.HttpWriter;
 import be.jeffcheasey88.peeratcode.webserver.Response;
+import be.jeffcheasey88.peeratcode.webserver.Route;
 import be.jeffcheasey88.peeratcode.webserver.Router;
 import be.jeffcheasey88.peeratcode.webserver.User;
 
@@ -27,6 +28,7 @@ public class Login implements Response {
 		this.router = router;
 	}
 
+	@Route(path = "^\\/login$", type = "POST")
 	@Override
 	public void exec(Matcher matcher, User user, HttpReader reader, HttpWriter writer) throws Exception {
 		if(user != null){
@@ -47,16 +49,6 @@ public class Login implements Response {
 			}
 		}
 		HttpUtil.responseHeaders(writer, 403, "Access-Control-Allow-Origin: *");
-	}
-
-	@Override
-	public Pattern getPattern() {
-		return Pattern.compile("^\\/login$");
-	}
-
-	@Override
-	public String getType(){
-		return "POST";
 	}
 
 }
