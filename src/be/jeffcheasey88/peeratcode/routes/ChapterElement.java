@@ -39,7 +39,7 @@ public class ChapterElement implements Response {
 				JSONObject puzzleJSON = new JSONObject();
 				puzzleJSON.put("id", puzzle.getId());
 				puzzleJSON.put("name", puzzle.getName());
-				if (puzzle.getTags() != null) puzzleJSON.put("tags", puzzle.getTags());
+				if (puzzle.getTags() != null) puzzleJSON.put("tags", puzzle.getJsonTags());
 				puzzles.add(puzzleJSON);
 			}
 			chapterJSON.put("puzzles", puzzles);

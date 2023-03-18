@@ -1,6 +1,11 @@
 package be.jeffcheasey88.peeratcode.model;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Set;
+
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 
 public class Puzzle {
 	
@@ -79,8 +84,25 @@ public class Puzzle {
 		return this.tags;
 	}
 	
+	
+	/**
+	 * DO NOT EVER EVER SHOW TO MISTER LUDWIG XD
+	 * @return DEATH
+	 */
+	public JSONArray getJsonTags() {
+		if (tags == null)
+			return null;
+		JSONArray tagsJSON = new JSONArray();
+		for (String tag: tags) {
+			JSONObject tagJSON = new JSONObject();
+			tagJSON.put("name", tag);
+			tagsJSON.add(tagJSON);
+		}
+		return tagsJSON;
+	}
+	
 	public void setTags(String tags){
-		this.tags = null;
+		this.tags = new HashSet<String>(Arrays.asList(tags.split(",")));
 	}
 	
 	public int getDepend(){
