@@ -24,6 +24,7 @@ public class WebClient {
 	private String token;
 	private int responseCode;
 	private List<String> headers;
+	private List<String> content;
 	
 	private String host;
 	private int port;
@@ -32,6 +33,7 @@ public class WebClient {
 		this.host = host;
 		this.port = port;
 		this.headers = new ArrayList<>();
+		this.content = new ArrayList<>();
 	}
 	
 	private void ensureConnection() throws Exception{
@@ -40,6 +42,7 @@ public class WebClient {
 		this.writer = new HttpWriter(socket);
 		this.responseCode = -1;
 		this.headers.clear();
+		this.content.clear();
 	}
 	
 	public void auth(String user, String password) throws Exception{
@@ -52,6 +55,7 @@ public class WebClient {
 			Matcher matcher = AUTORIZATION.matcher(line);
 			if(matcher.matches()){
 				this.token = matcher.group(1);
+				System.out.println(token);
 				break;
 			}
 		}
@@ -69,6 +73,8 @@ public class WebClient {
 		this.responseCode = Integer.parseInt(this.reader.readLine().split("\\s+")[1]);
 		String line;
 		while(((line = reader.readLine()) != null) && line.length() > 0) this.headers.add(line);
+		
+		while((line = reader.readLine()) != null) this.content.add(line);
 	}
 	
 	public void assertResponseCode(int expected){
@@ -79,4 +85,10 @@ public class WebClient {
 		}
 	}
 	
+	public void assertHeader(String expected){
+		for(String header : headers){
+			if(header.equals(expected)) return;
+		}
+		fail("Line <"+expected+"> not found in "+this.headers.size()+" headers");
+	}
 }

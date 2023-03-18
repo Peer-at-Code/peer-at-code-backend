@@ -44,7 +44,6 @@ public class Client extends Thread{
 			JwtConsumer jwtConsumer = new JwtConsumerBuilder()
 		            .setRequireExpirationTime()
 		            .setAllowedClockSkewInSeconds(30)
-		            .setRequireSubject()
 		            .setExpectedIssuer(this.router.getTokenIssuer())
 		            .setVerificationKey(this.router.getWebKey().getKey())
 		            .setJwsAlgorithmConstraints(
