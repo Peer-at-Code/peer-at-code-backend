@@ -41,7 +41,7 @@ public class Router{
 	
 	public void register(Response response){
 		try {
-			Method method = response.getClass().getDeclaredMethod("exec");
+			Method method = response.getClass().getDeclaredMethod("exec", Response.class.getDeclaredMethods()[0].getParameterTypes());
 			Route route = method.getAnnotation(Route.class);
 			
 			this.responses.put(response, route);

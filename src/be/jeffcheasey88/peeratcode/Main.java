@@ -28,6 +28,7 @@ import be.jeffcheasey88.peeratcode.webserver.HttpReader;
 import be.jeffcheasey88.peeratcode.webserver.HttpUtil;
 import be.jeffcheasey88.peeratcode.webserver.HttpWriter;
 import be.jeffcheasey88.peeratcode.webserver.Response;
+import be.jeffcheasey88.peeratcode.webserver.Route;
 import be.jeffcheasey88.peeratcode.webserver.Router;
 import be.jeffcheasey88.peeratcode.webserver.User;
 
@@ -41,12 +42,6 @@ public class Main {
 		Router router = new Router(new DatabaseRepository(config), config.getTokenIssuer(), config.getTokenExpiration());
 
 		router.setDefault(new Response(){
-
-			@Override
-			public Pattern getPattern(){
-				return null;
-			}
-
 			@Override
 			public void exec(Matcher matcher, User user, HttpReader reader, HttpWriter writer) throws Exception {
 				HttpUtil.responseHeaders(writer, 404, "Access-Control-Allow-Origin: *");
@@ -57,21 +52,13 @@ public class Main {
 		});
 		
 		router.register(new Response(){
-			@Override
-			public Pattern getPattern() {
-				return Pattern.compile("^(.*)$");
-			}
+			@Route(path = "^(.*)$", type = "OPTIONS")
 			@Override
 			public void exec(Matcher matcher, User user, HttpReader reader, HttpWriter writer) throws Exception {
 				HttpUtil.responseHeaders(writer, 200,
 						"Access-Control-Allow-Origin: *",
 						"Access-Control-Allow-Methods: *",
 						"Access-Control-Allow-Headers: *");
-			}
-			
-			@Override
-			public String getType() {
-				return "OPTIONS";
 			}
 		});
 

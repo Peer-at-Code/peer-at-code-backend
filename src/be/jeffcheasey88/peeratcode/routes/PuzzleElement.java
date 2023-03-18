@@ -12,6 +12,7 @@ import be.jeffcheasey88.peeratcode.webserver.HttpReader;
 import be.jeffcheasey88.peeratcode.webserver.HttpUtil;
 import be.jeffcheasey88.peeratcode.webserver.HttpWriter;
 import be.jeffcheasey88.peeratcode.webserver.Response;
+import be.jeffcheasey88.peeratcode.webserver.Route;
 import be.jeffcheasey88.peeratcode.webserver.User;
 
 public class PuzzleElement implements Response {
@@ -22,6 +23,7 @@ public class PuzzleElement implements Response {
 		this.databaseRepo = databaseRepo;
 	}
 
+	@Route(path = "^\\/puzzle\\/([0-9]+)$")
 	@Override
 	public void exec(Matcher matcher, User user, HttpReader reader, HttpWriter writer) throws Exception {
 		HttpUtil.responseHeaders(writer, 200,
@@ -37,11 +39,6 @@ public class PuzzleElement implements Response {
 			if (puzzle.getDepend() > 0)	puzzleJSON.put("depend", puzzle.getDepend());
 			writer.write(puzzleJSON.toJSONString());
 		}
-	}
-
-	@Override
-	public Pattern getPattern() {
-		return Pattern.compile("^\\/puzzle\\/([0-9]+)$");
 	}
 
 	private int extractId(Matcher matcher) {

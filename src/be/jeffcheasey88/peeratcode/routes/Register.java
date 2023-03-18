@@ -14,6 +14,7 @@ import be.jeffcheasey88.peeratcode.webserver.HttpReader;
 import be.jeffcheasey88.peeratcode.webserver.HttpUtil;
 import be.jeffcheasey88.peeratcode.webserver.HttpWriter;
 import be.jeffcheasey88.peeratcode.webserver.Response;
+import be.jeffcheasey88.peeratcode.webserver.Route;
 import be.jeffcheasey88.peeratcode.webserver.Router;
 import be.jeffcheasey88.peeratcode.webserver.User;
 
@@ -27,6 +28,7 @@ public class Register implements Response {
 		this.router = router;
 	}
 
+	@Route(path = "^\\/register$", type = "POST")
 	@Override
 	public void exec(Matcher matcher, User user, HttpReader reader, HttpWriter writer) throws Exception {
 		if(user != null){
@@ -79,16 +81,6 @@ public class Register implements Response {
 
 	private void createFolderToSaveSourceCode(String pseudo) throws IOException {
 		Files.createDirectories(Paths.get(String.format(Player.PATH_TO_CODE, pseudo)));
-	}
-
-	@Override
-	public Pattern getPattern() {
-		return Pattern.compile("^\\/register$");
-	}
-
-	@Override
-	public String getType() {
-		return "POST";
 	}
 
 }

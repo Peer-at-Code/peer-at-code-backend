@@ -1,21 +1,18 @@
 package be.jeffcheasey88.peeratcode.routes;
 
+import java.util.Base64;
+import java.util.regex.Matcher;
+
+import org.json.simple.JSONObject;
+
 import be.jeffcheasey88.peeratcode.model.Player;
 import be.jeffcheasey88.peeratcode.repository.DatabaseRepository;
 import be.jeffcheasey88.peeratcode.webserver.HttpReader;
 import be.jeffcheasey88.peeratcode.webserver.HttpUtil;
 import be.jeffcheasey88.peeratcode.webserver.HttpWriter;
 import be.jeffcheasey88.peeratcode.webserver.Response;
+import be.jeffcheasey88.peeratcode.webserver.Route;
 import be.jeffcheasey88.peeratcode.webserver.User;
-
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-
-import java.util.Arrays;
-import java.util.Base64;
-import java.util.SortedSet;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class PlayerDetails implements Response {
 
@@ -25,6 +22,7 @@ public class PlayerDetails implements Response {
 		this.databaseRepo = databaseRepo;
 	}
 
+	@Route(path = "^\\/player\\/?(.+)?$")
 	@Override
 	public void exec(Matcher matcher, User user, HttpReader reader, HttpWriter writer) throws Exception {
 		Player player;
@@ -53,8 +51,4 @@ public class PlayerDetails implements Response {
 		}
 	}
 
-	@Override
-	public Pattern getPattern() {
-		return Pattern.compile("^\\/player\\/?(.+)?$");
-	}
 }

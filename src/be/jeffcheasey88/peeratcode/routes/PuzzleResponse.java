@@ -7,7 +7,6 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.json.simple.JSONObject;
 
@@ -18,6 +17,7 @@ import be.jeffcheasey88.peeratcode.webserver.HttpReader;
 import be.jeffcheasey88.peeratcode.webserver.HttpUtil;
 import be.jeffcheasey88.peeratcode.webserver.HttpWriter;
 import be.jeffcheasey88.peeratcode.webserver.Response;
+import be.jeffcheasey88.peeratcode.webserver.Route;
 import be.jeffcheasey88.peeratcode.webserver.User;
 
 public class PuzzleResponse implements Response {
@@ -27,6 +27,7 @@ public class PuzzleResponse implements Response {
 		this.databaseRepo = databaseRepo;
 	}
 
+	@Route(path = "^\\/puzzleResponse\\/([0-9]+)$", type = "POST", needLogin = true)
 	@Override
 	public void exec(Matcher matcher, User user, HttpReader reader, HttpWriter writer) throws Exception {
 		ReceivedResponse received = new ReceivedResponse(matcher, reader);
@@ -56,20 +57,6 @@ public class PuzzleResponse implements Response {
 		
 	}
 
-	@Override
-	public Pattern getPattern() {
-		return Pattern.compile("^\\/puzzleResponse\\/([0-9]+)$");
-	}
-
-	@Override
-	public String getType() {
-		return "POST";
-	}
-	
-	@Override
-	public boolean needLogin(){
-		return true;
-	}
 }
 
 class ReceivedResponse {

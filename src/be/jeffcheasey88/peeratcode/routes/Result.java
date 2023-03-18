@@ -8,6 +8,7 @@ import be.jeffcheasey88.peeratcode.webserver.HttpReader;
 import be.jeffcheasey88.peeratcode.webserver.HttpUtil;
 import be.jeffcheasey88.peeratcode.webserver.HttpWriter;
 import be.jeffcheasey88.peeratcode.webserver.Response;
+import be.jeffcheasey88.peeratcode.webserver.Route;
 import be.jeffcheasey88.peeratcode.webserver.User;
 
 public class Result implements Response{
@@ -17,7 +18,8 @@ public class Result implements Response{
 	public Result(DatabaseRepository repo){
 		this.repo = repo;
 	}
-
+	
+	@Route(path = "^\\/result\\/(\\d+)$", needLogin = true)
 	@Override
 	public void exec(Matcher matcher, User user, HttpReader reader, HttpWriter writer) throws Exception {
 		int puzzle = Integer.parseInt(matcher.group(1));
@@ -31,13 +33,4 @@ public class Result implements Response{
 		}
 	}
 
-	@Override
-	public Pattern getPattern(){
-		return Pattern.compile("^\\/result\\/(\\d+)$");
-	}
-	
-	@Override
-	public boolean needLogin(){
-		return true;
-	}
 }
