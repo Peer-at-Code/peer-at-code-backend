@@ -23,9 +23,9 @@ import be.jeffcheasey88.peeratcode.model.Player;
 import be.jeffcheasey88.peeratcode.model.Puzzle;
 
 public class DatabaseRepository {
-	private static final String SPECIFIC_PUZZLE_QUERY = "SELECT p.*, np.origin FROM puzzles p LEFT JOIN nextPart np ON p.id_puzzle = np.next WHERE p.id_puzzle = ?;";
+	private static final String SPECIFIC_PUZZLE_QUERY = "SELECT p.*, np.origin, GROUP_CONCAT(t.name) AS tags FROM puzzles p LEFT JOIN nextPart np ON p.id_puzzle = np.next LEFT JOIN containsTags ct ON ct.fk_puzzle = p.id_puzzle LEFT JOIN tags t ON t.id_tag = ct.fk_tag WHERE p.id_puzzle = ? GROUP BY p.id_puzzle";
 	private static final String SPECIFIC_CHAPTER_QUERY = "SELECT * FROM chapters WHERE id_chapter = ?";
-	private static final String PUZZLES_IN_CHAPTER_QUERY = "SELECT * FROM puzzles WHERE fk_chapter = ?";
+	private static final String PUZZLES_IN_CHAPTER_QUERY = "SELECT p.*, GROUP_CONCAT(t.name) AS tags FROM puzzles p LEFT JOIN containsTags ct ON ct.fk_puzzle = p.id_puzzle LEFT JOIN tags t ON t.id_tag = ct.fk_tag WHERE fk_chapter = ? GROUP BY p.id_puzzle";
 	private static final String ALL_CHAPTERS_QUERY = "SELECT * FROM chapters WHERE id_chapter > 0";
 	private static final String CHECK_PSEUDO_AVAILABLE_QUERY = "SELECT * FROM players WHERE pseudo = ?";
 	private static final String CHECK_EMAIL_AVAILABLE_QUERY = "SELECT * FROM players WHERE email = ?";
@@ -33,20 +33,21 @@ public class DatabaseRepository {
 	private static final String CHECK_PASSWORD = "SELECT id_player, passwd FROM players WHERE pseudo=?";
 	private static final String SCORE = "SELECT score FROM completions WHERE fk_player = ? AND fk_puzzle = ?";
 	private static final String GET_COMPLETION = "SELECT id_completion, tries, fileName, score FROM completions WHERE fk_puzzle = ? AND fk_player = ?";
-	private static final String GET_PLAYER = "SELECT * FROM players WHERE ";
-	private static final String GET_PLAYER_BY_ID = GET_PLAYER + "id_player = ?";
-	private static final String GET_PLAYER_BY_PSEUDO = GET_PLAYER + "pseudo = ?";
-	private static final String GET_PLAYER_DETAILS = "SELECT p.pseudo, p.email, p.firstname, p.lastname, p.description, p.avatar, p.sgroup,\n"
+	private static final String PART_GET_PLAYER_GROUP = " LEFT JOIN containsGroups cg ON p.id_player = cg.fk_player LEFT JOIN groups g ON cg.fk_group = g.id_group ";
+	private static final String GET_PLAYER = "SELECT p.*, GROUP_CONCAT(g.name) FROM players p WHERE ";
+	private static final String GET_PLAYER_BY_ID = GET_PLAYER + "id_player = ?" + PART_GET_PLAYER_GROUP;
+	private static final String GET_PLAYER_BY_PSEUDO = GET_PLAYER + "pseudo = ?" + PART_GET_PLAYER_GROUP;;
+	private static final String GET_PLAYER_DETAILS = "SELECT p.pseudo, p.email, p.firstname, p.lastname, p.description, p.avatar, GROUP_CONCAT(DISTINCT g.name) AS sgroup,\n"
 			+ "       SUM(c.score) AS playerScore, COUNT(c.id_completion) AS playerCompletions, SUM(c.tries) AS playerTries,\n"
-			+ "       GROUP_CONCAT(DISTINCT b.name ORDER BY b.name ASC SEPARATOR ', ') AS badges\n" + "FROM players p\n"
+			+ "       GROUP_CONCAT(DISTINCT b.name ORDER BY b.name ASC) AS badges FROM players p\n"
 			+ "LEFT JOIN completions c ON p.id_player = c.fk_player\n"
 			+ "LEFT JOIN containsBadges cb ON p.id_player = cb.fk_player\n"
-			+ "LEFT JOIN badges b ON cb.fk_badge = b.id_badge\n";
+			+ "LEFT JOIN badges b ON cb.fk_badge = b.id_badge\n" + PART_GET_PLAYER_GROUP;
 	private static final String GET_PLAYER_DETAILS_BY_ID = GET_PLAYER_DETAILS
-			+ "WHERE p.id_player = ? GROUP BY p.id_player;";
+			+ " WHERE p.id_player = ? GROUP BY p.id_player;";
 	private static final String GET_PLAYER_DETAILS_BY_PSEUDO = GET_PLAYER_DETAILS
-			+ "WHERE p.pseudo = ? GROUP BY p.pseudo;";
-	private static final String ALL_PLAYERS_FOR_LEADERBOARD = "SELECT p.*, sum(c.score) AS playerScore, count(c.id_completion) AS playerCompletions, sum(c.tries) AS playerTries FROM players p LEFT JOIN completions c ON c.fk_player = p.id_player GROUP BY p.id_player ORDER BY playerScore DESC";
+			+ " WHERE p.pseudo = ? GROUP BY p.pseudo;";
+	private static final String ALL_PLAYERS_FOR_LEADERBOARD = "SELECT p.*, GROUP_CONCAT(DISTINCT g.name) AS sgroup, sum(c.score) AS playerScore, count(c.id_completion) AS playerCompletions, sum(c.tries) AS playerTries FROM players p "  + PART_GET_PLAYER_GROUP + "LEFT JOIN completions c ON c.fk_player = p.id_player GROUP BY p.id_player ORDER BY playerScore DESC";
 	private static final String GET_BADGE = "SELECT * FROM badges WHERE id_badge = ?";
 	private static final String INSERT_COMPLETION = "INSERT INTO completions (fk_puzzle, fk_player, tries, code, fileName, score) values (?, ?, ?, ?, ?, ?)";
 	private static final String UPDATE_COMPLETION = "UPDATE completions SET tries = ?, filename = ?, score = ? WHERE fk_puzzle = ? AND fk_player = ?";
@@ -68,11 +69,12 @@ public class DatabaseRepository {
 
 	private Puzzle makePuzzle(ResultSet puzzleResult) throws SQLException {
 		return new Puzzle(puzzleResult.getInt("id_puzzle"), puzzleResult.getString("name"),
-				puzzleResult.getString("content"), null, "", 0, hasColumn(puzzleResult, "origin") ? puzzleResult.getInt("origin") : -1);
+				puzzleResult.getString("content"), null, "", 0, puzzleResult.getString("tags"),
+				hasColumn(puzzleResult, "origin") ? puzzleResult.getInt("origin") : -1);
 	}
 
 	private Chapter makeChapter(ResultSet chapterResult) throws SQLException {
-		return new Chapter(chapterResult.getInt("id_chapter"), chapterResult.getString("name"));
+		return new Chapter(chapterResult.getInt("id_chapter"), chapterResult.getString("name"), chapterResult.getTimestamp("start_date"), chapterResult.getTimestamp("end_date"));
 	}
 
 	private Completion makeCompletion(int playerId, int puzzleId, ResultSet completionResult) throws SQLException {

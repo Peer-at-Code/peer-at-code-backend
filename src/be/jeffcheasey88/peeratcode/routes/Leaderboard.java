@@ -11,6 +11,7 @@ import be.jeffcheasey88.peeratcode.webserver.User;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
+import java.util.Base64;
 import java.util.SortedSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -33,14 +34,14 @@ public class Leaderboard implements Response {
 				JSONObject playerJSON = new JSONObject();
 				playerJSON.put("pseudo", player.getPseudo());
 				playerJSON.put("group", player.getGroup());
-				// chapterJSON.put("avatar", player.);
+				if(player.getAvatar() != null) playerJSON.put("avatar", Base64.getEncoder().encodeToString(player.getAvatar()));
 				playerJSON.put("score", player.getTotalScore());
 				playerJSON.put("completions", player.getTotalCompletion());
 				playerJSON.put("tries", player.getTotalTries());
 				playersJSON.add(playerJSON);
 			}
 		}
-		writer.write(playersJSON.toJSONString());
+		writer.write(playersJSON.toJSONString().replace("\\", ""));
 	}
 
 	@Override
