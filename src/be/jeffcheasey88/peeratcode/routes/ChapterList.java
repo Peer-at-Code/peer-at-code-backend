@@ -34,6 +34,8 @@ public class ChapterList implements Response {
 				JSONObject chapterJSON = new JSONObject();
 				chapterJSON.put("id", chapter.getId());
 				chapterJSON.put("name", chapter.getName());
+				if (chapter.getStartDate() != null) chapterJSON.put("startDate", chapter.getStartDate());
+				if (chapter.getEndDate() != null) chapterJSON.put("endDate", chapter.getEndDate());
 				chaptersJSON.add(chapterJSON);
 			}
 			writer.write(chaptersJSON.toJSONString());
