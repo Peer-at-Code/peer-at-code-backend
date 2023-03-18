@@ -33,8 +33,8 @@ public class PuzzleElement implements Response {
 			puzzleJSON.put("id", puzzle.getId());
 			puzzleJSON.put("name", puzzle.getName());
 			puzzleJSON.put("content", puzzle.getContent());
-			if (puzzle.getDepend() > 0)
-				puzzleJSON.put("depend", puzzle.getDepend());
+			if (puzzle.getTags() != null) puzzleJSON.put("tags", puzzle.getTags());
+			if (puzzle.getDepend() > 0)	puzzleJSON.put("depend", puzzle.getDepend());
 			writer.write(puzzleJSON.toJSONString());
 		}
 	}

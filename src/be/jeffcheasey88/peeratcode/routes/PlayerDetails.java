@@ -46,8 +46,8 @@ public class PlayerDetails implements Response {
 			playerJSON.put("completions", player.getTotalCompletion());
 			playerJSON.put("tries", player.getTotalTries());
 			playerJSON.put("badges", player.getBadges());
-			if(player.getAvatar() != null) playerJSON.put("avatar", new String(Base64.getEncoder().encode(player.getAvatar())));
-			writer.write(playerJSON.toJSONString());
+			if(player.getAvatar() != null) playerJSON.put("avatar", Base64.getEncoder().encodeToString(player.getAvatar()));
+			writer.write(playerJSON.toJSONString().replace("\\", ""));
 		} else {
 			HttpUtil.responseHeaders(writer, 400, "Access-Control-Allow-Origin: *");
 		}
@@ -55,6 +55,6 @@ public class PlayerDetails implements Response {
 
 	@Override
 	public Pattern getPattern() {
-		return Pattern.compile("^\\/player\\/(.+)?$");
+		return Pattern.compile("^\\/player\\/?(.+)?$");
 	}
 }
