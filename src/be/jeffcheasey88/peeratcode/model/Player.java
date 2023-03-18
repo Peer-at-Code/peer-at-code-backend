@@ -1,8 +1,12 @@
 package be.jeffcheasey88.peeratcode.model;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 
 public class Player implements Comparable<Player> {
 	public static final String PATH_TO_CODE = "/home/%s/peer-at-source/";
@@ -12,7 +16,7 @@ public class Player implements Comparable<Player> {
 	private String firstname;
 	private String lastname;
 	private String description;
-	private String sgroup;
+	private Set<String> groups;
 	private byte[] avatar;
 
 	private int totalScore;
@@ -21,22 +25,22 @@ public class Player implements Comparable<Player> {
 	
 	private String badges; // To change to a set of model
 
-	public Player(String pseudo, String email, String firstname, String lastname, String description, String sgroup) {
-		this(pseudo, email, firstname, lastname, description, sgroup, null);
+	public Player(String pseudo, String email, String firstname, String lastname, String description, String groups) {
+		this(pseudo, email, firstname, lastname, description, groups, null);
 	}
 
-	public Player(String pseudo, String email, String firstname, String lastname, String description, String sgroup,
+	public Player(String pseudo, String email, String firstname, String lastname, String description, String groups,
 			byte[] avatar) {
-		this(pseudo, email, firstname, lastname, description, sgroup, avatar, null);
+		this(pseudo, email, firstname, lastname, description, groups, avatar, null);
 	}
-	public Player(String pseudo, String email, String firstname, String lastname, String description, String sgroup,
+	public Player(String pseudo, String email, String firstname, String lastname, String description, String groups,
 			byte[] avatar, String badges) {
 		this.pseudo = pseudo;
 		this.email = email;
 		this.firstname = firstname;
 		this.lastname = lastname;
 		this.description = description;
-		this.sgroup = sgroup;
+		setGroups(groups);
 		this.avatar = avatar;
 
 		totalScore = 0;
@@ -66,8 +70,31 @@ public class Player implements Comparable<Player> {
 		return this.description;
 	}
 
-	public String getGroup() {
-		return this.sgroup;
+	public Set<String> getGroups() {
+		return groups;
+	}
+	
+	/**
+	 * SEE SET_TAGS IN PUZZLE
+	 * @return DEATH
+	 */
+	public JSONArray getJsonGroups() {
+		if (groups == null)
+			return null;
+		JSONArray groupsJSON = new JSONArray();
+		for (String group: groups) {
+			JSONObject groupJSON = new JSONObject();
+			groupJSON.put("name", group);
+			groupsJSON.add(groupJSON);
+		}
+		return groupsJSON;
+	}
+	
+	public void setGroups(String groups) {
+		if (groups == null || groups.isEmpty())
+			groups = null;
+		else
+			this.groups = new HashSet<String>(Arrays.asList(groups.split(",")));
 	}
 
 	public byte[] getAvatar() {

@@ -39,7 +39,7 @@ public class PlayerDetails implements Response {
 			playerJSON.put("firstname", player.getFirstname());
 			playerJSON.put("lastname", player.getLastname());
 			playerJSON.put("description", player.getDescription());
-			playerJSON.put("group", player.getGroup());
+			if (player.getGroups() != null) playerJSON.put("groups", player.getJsonGroups());
 			playerJSON.put("score", player.getTotalScore());
 			playerJSON.put("completions", player.getTotalCompletion());
 			playerJSON.put("tries", player.getTotalTries());

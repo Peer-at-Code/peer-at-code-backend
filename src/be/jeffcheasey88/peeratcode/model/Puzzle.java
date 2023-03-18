@@ -84,7 +84,6 @@ public class Puzzle {
 		return this.tags;
 	}
 	
-	
 	/**
 	 * DO NOT EVER EVER SHOW TO MISTER LUDWIG XD
 	 * @return DEATH
@@ -102,7 +101,10 @@ public class Puzzle {
 	}
 	
 	public void setTags(String tags){
-		this.tags = new HashSet<String>(Arrays.asList(tags.split(",")));
+		if (tags == null || tags.isEmpty())
+			this.tags = null;
+		else
+			this.tags = new HashSet<String>(Arrays.asList(tags.split(",")));
 	}
 	
 	public int getDepend(){

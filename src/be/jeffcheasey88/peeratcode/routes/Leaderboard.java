@@ -34,7 +34,7 @@ public class Leaderboard implements Response {
 			for (Player player : allPlayers) {
 				JSONObject playerJSON = new JSONObject();
 				playerJSON.put("pseudo", player.getPseudo());
-				playerJSON.put("group", player.getGroup());
+				if (player.getGroups() != null) playerJSON.put("groups", player.getJsonGroups());
 				if(player.getAvatar() != null) playerJSON.put("avatar", Base64.getEncoder().encodeToString(player.getAvatar()));
 				playerJSON.put("score", player.getTotalScore());
 				playerJSON.put("completions", player.getTotalCompletion());
