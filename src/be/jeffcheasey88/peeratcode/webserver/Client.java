@@ -54,6 +54,8 @@ public class Client extends Thread{
 	        return new User(jwtClaims);
 		}catch(Exception e){
 			HttpUtil.responseHeaders(writer, 401, "Access-Control-Allow-Origin: *");
+			writer.flush();
+			writer.close();
 			throw e;
 		}
 	}
