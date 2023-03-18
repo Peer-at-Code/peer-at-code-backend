@@ -19,7 +19,7 @@ class PlayerDetailsTests {
 	
 	@BeforeAll
 	void init(){
-		server = new Thread(new Runnable() {
+		server = new Thread(new Runnable(){
 			@Override
 			public void run(){
 				try {
