@@ -1,5 +1,7 @@
 package be.jeffcheasey88.peeratcode.model;
 
+import java.util.Set;
+
 public class Puzzle {
 	
 	private int id;
@@ -8,7 +10,7 @@ public class Puzzle {
 	private byte[] soluce;
 	private String verify;
 	private int scoreMax;
-	private String tags;
+	private Set<String> tags;
 	private int depend;
 
 	public Puzzle(int id, String name, String content, byte[] soluce, String verify, int scoreMax, String tags){
@@ -21,7 +23,7 @@ public class Puzzle {
 		this.soluce = soluce;
 		this.verify = verify;
 		this.scoreMax = scoreMax;
-		this.tags = tags;
+		setTags(tags);
 		this.depend = depend;
 	}
 
@@ -73,12 +75,12 @@ public class Puzzle {
 		this.scoreMax = max;
 	}
 	
-	public String getTags(){
+	public Set<String> getTags(){
 		return this.tags;
 	}
 	
-	public void setTags(int tags){
-		this.scoreMax = tags;
+	public void setTags(String tags){
+		this.tags = null;
 	}
 	
 	public int getDepend(){
