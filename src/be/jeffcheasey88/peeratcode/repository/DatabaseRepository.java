@@ -33,22 +33,15 @@ public class DatabaseRepository {
 	private static final String CHECK_PASSWORD = "SELECT id_player, passwd FROM players WHERE pseudo=?";
 	private static final String SCORE = "SELECT score FROM completions WHERE fk_player = ? AND fk_puzzle = ?";
 	private static final String GET_COMPLETION = "SELECT id_completion, tries, fileName, score FROM completions WHERE fk_puzzle = ? AND fk_player = ?";
-	private static final String PART_GET_PLAYER_GROUP = " LEFT JOIN containsGroups cg ON p.id_player = cg.fk_player LEFT JOIN groups g ON cg.fk_group = g.id_group ";
-	private static final String GET_PLAYER = "SELECT p.*, GROUP_CONCAT(g.name  ORDER BY g.fk_chapter, g.fk_puzzle) FROM players p WHERE ";
-	private static final String GET_PLAYER_BY_ID = GET_PLAYER + "id_player = ?" + PART_GET_PLAYER_GROUP;
-	private static final String GET_PLAYER_BY_PSEUDO = GET_PLAYER + "pseudo = ?" + PART_GET_PLAYER_GROUP;;
-	private static final String GET_PLAYER_DETAILS = "SELECT p.pseudo, p.email, p.firstname, p.lastname, p.description, p.avatar, GROUP_CONCAT(DISTINCT g.name ORDER BY g.fk_chapter, g.fk_puzzle) AS sgroup,\n"
-			+ "       SUM(c.score) AS playerScore, COUNT(c.id_completion) AS playerCompletions, SUM(c.tries) AS playerTries,\n"
-			+ "       GROUP_CONCAT(DISTINCT b.name ORDER BY b.name ASC) AS badges FROM players p\n"
-			+ "LEFT JOIN completions c ON p.id_player = c.fk_player\n"
-			+ "LEFT JOIN containsBadges cb ON p.id_player = cb.fk_player\n"
-			+ "LEFT JOIN badges b ON cb.fk_badge = b.id_badge\n" + PART_GET_PLAYER_GROUP;
+	private static final String GET_PLAYER_SIMPLE = "SELECT pseudo, email, firstname, lastname, description FROM players WHERE id_player = ?";
+	private static final String GET_PLAYER_DETAILS = "SELECT p.*, scores.score, scores.completions, scores.tries, scores.rank, GROUP_CONCAT(DISTINCT g.name ORDER BY g.fk_chapter, g.fk_puzzle) AS sgroup FROM players p, (SELECT fk_player, SUM(c.score) AS score, COUNT(c.id_completion) AS completions, SUM(c.tries) AS tries, rank() over(ORDER BY score DESC) AS rank FROM completions c GROUP BY c.fk_player) AS scores LEFT JOIN containsGroups cg ON scores.fk_player = cg.fk_player LEFT JOIN groups g ON cg.fk_group = g.id_group WHERE p.id_player = scores.fk_player AND ";
 	private static final String GET_PLAYER_DETAILS_BY_ID = GET_PLAYER_DETAILS
-			+ " WHERE p.id_player = ? GROUP BY p.id_player;";
+			+ " p.id_player = ? GROUP BY p.id_player;";
 	private static final String GET_PLAYER_DETAILS_BY_PSEUDO = GET_PLAYER_DETAILS
-			+ " WHERE p.pseudo = ? GROUP BY p.pseudo;";
-	private static final String ALL_PLAYERS_FOR_LEADERBOARD = "SELECT p.*, GROUP_CONCAT(DISTINCT g.name  ORDER BY g.fk_chapter, g.fk_puzzle) AS sgroup, sum(c.score) AS playerScore, count(c.id_completion) AS playerCompletions, sum(c.tries) AS playerTries FROM players p "  + PART_GET_PLAYER_GROUP + "LEFT JOIN completions c ON c.fk_player = p.id_player GROUP BY p.id_player ORDER BY playerScore DESC";
+			+ "p.pseudo = ? GROUP BY p.pseudo;";
+	private static final String ALL_PLAYERS_FOR_LEADERBOARD = "select DISTINCT p.*, scores.* from players p ,(SELECT fk_player, SUM(c.score) AS score, COUNT(c.id_completion) AS completions, SUM(c.tries) AS tries, rank() over(ORDER BY score DESC) AS rank FROM completions c GROUP BY c.fk_player) AS scores LEFT JOIN containsGroups cg ON scores.fk_player = cg.fk_player WHERE p.id_player = scores.fk_player";
 	private static final String GET_BADGE = "SELECT * FROM badges WHERE id_badge = ?";
+	private static final String GET_BADGES_OF_PLAYER = "SELECT * FROM badges b LEFT JOIN containsBadges cb ON cb.fk_badge = b.id_badge WHERE cb.fk_player = ?";
 	private static final String INSERT_COMPLETION = "INSERT INTO completions (fk_puzzle, fk_player, tries, code, fileName, score) values (?, ?, ?, ?, ?, ?)";
 	private static final String UPDATE_COMPLETION = "UPDATE completions SET tries = ?, filename = ?, score = ? WHERE fk_puzzle = ? AND fk_player = ?";
 
@@ -85,16 +78,19 @@ public class DatabaseRepository {
 
 	private Player makePlayer(ResultSet playerResult) throws SQLException {
 		Player p = new Player(playerResult.getString("pseudo"), playerResult.getString("email"),
-				playerResult.getString("firstName"), playerResult.getString("LastName"),
-				playerResult.getString("description"), playerResult.getString("sgroup"),
-				playerResult.getBytes("avatar"));
-		if (hasColumn(playerResult, "playerScore")) {
-			p.setTotalScore(playerResult.getInt("playerScore"));
-			p.setTotalCompletion(playerResult.getInt("playerCompletions"));
-			p.setTotalTries(playerResult.getInt("playerTries"));
+				playerResult.getString("firstName"), playerResult.getString("lastName"),
+				playerResult.getString("description"));
+		if (hasColumn(playerResult, "avatar")) {
+			p.setAvatar(playerResult.getBytes("avatar"));
 		}
-		if (hasColumn(playerResult, "badges")) {
-			p.setBadges(playerResult.getString("badges"));
+		if (hasColumn(playerResult, "sgroup")) {
+			p.setGroups(playerResult.getString("sgroup"));
+		}
+		if (hasColumn(playerResult, "score")) {
+			p.setRank(playerResult.getInt("rank"));
+			p.setTotalScore(playerResult.getInt("score"));
+			p.setTotalCompletion(playerResult.getInt("completions"));
+			p.setTotalTries(playerResult.getInt("tries"));
 		}
 		return p;
 	}
@@ -181,7 +177,7 @@ public class DatabaseRepository {
 
 	public Player getPlayer(int idPlayer) {
 		try {
-			PreparedStatement completionsStmt = con.prepareStatement(GET_PLAYER);
+			PreparedStatement completionsStmt = con.prepareStatement(GET_PLAYER_SIMPLE);
 			completionsStmt.setInt(1, idPlayer);
 			ResultSet result = completionsStmt.executeQuery();
 			if (result.next()) {
@@ -194,28 +190,34 @@ public class DatabaseRepository {
 	}
 
 	public Player getPlayerDetails(int idPlayer) {
-		try {
-			ensureConnection();
-			PreparedStatement completionsStmt = con.prepareStatement(GET_PLAYER_DETAILS_BY_ID);
-			completionsStmt.setInt(1, idPlayer);
-			ResultSet result = completionsStmt.executeQuery();
-			if (result.next()) {
-				return makePlayer(result);
-			}
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		return null;
+		return getPlayerDetails(idPlayer, null);
 	}
 
 	public Player getPlayerDetails(String pseudoPlayer) {
+		return getPlayerDetails(-1, pseudoPlayer);
+	}
+	
+	private Player getPlayerDetails(int id, String pseudo) {
 		try {
 			ensureConnection();
-			PreparedStatement completionsStmt = con.prepareStatement(GET_PLAYER_DETAILS_BY_PSEUDO);
-			completionsStmt.setString(1, pseudoPlayer);
+			PreparedStatement completionsStmt;
+			if (pseudo != null) {
+				completionsStmt = con.prepareStatement(GET_PLAYER_DETAILS_BY_PSEUDO);
+				completionsStmt.setString(1, pseudo);
+			} else {
+				completionsStmt = con.prepareStatement(GET_PLAYER_DETAILS_BY_ID);
+				completionsStmt.setInt(1, id);
+			}
 			ResultSet result = completionsStmt.executeQuery();
 			if (result.next()) {
-				return makePlayer(result);
+				Player player = makePlayer(result);
+				completionsStmt = con.prepareStatement(GET_BADGES_OF_PLAYER);
+				completionsStmt.setInt(1, result.getInt("id_player"));
+				ResultSet resultBadges = completionsStmt.executeQuery();
+				while (resultBadges.next()) {
+					player.addBadge(makeBadge(resultBadges));
+				}
+				return player;
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();

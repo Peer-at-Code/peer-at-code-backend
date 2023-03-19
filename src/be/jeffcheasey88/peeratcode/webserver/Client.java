@@ -34,7 +34,9 @@ public class Client extends Thread{
 			router.exec(headers[0], headers[1], isLogin(reader), reader, writer);
 			writer.flush();
 			writer.close();
-		} catch (Exception e){}
+		} catch (Exception e){ 
+			e.printStackTrace();
+		}
 	}
 	
 	private User isLogin(HttpReader reader) throws Exception{
