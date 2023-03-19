@@ -21,12 +21,17 @@ public class Player implements Comparable<Player> {
 	private LinkedHashSet<String> groups;
 	private byte[] avatar;
 
+	private int rank;
 	private int totalScore;
 	private int totalCompletion;
 	private int totalTries;
 	
 	private String badges; // To change to a set of model
 
+	public Player(String pseudo, String email, String firstname, String lastname, String description) {
+		this(pseudo, email, firstname, lastname, description, null, null);
+	}
+	
 	public Player(String pseudo, String email, String firstname, String lastname, String description, String groups) {
 		this(pseudo, email, firstname, lastname, description, groups, null);
 	}
@@ -103,10 +108,22 @@ public class Player implements Comparable<Player> {
 		return this.avatar;
 	}
 	
+	public void setAvatar(byte[] newAvatar) {
+		avatar = newAvatar;
+	}
+	
 	public String getPathToSourceCode() {
 		return String.format(PATH_TO_CODE, pseudo);
 	}
 
+	public int getRank() {
+		return rank;
+	}
+
+	public void setRank(int newRank) {
+		rank = newRank;
+	}
+	
 	public int getTotalScore() {
 		return totalScore;
 	}
