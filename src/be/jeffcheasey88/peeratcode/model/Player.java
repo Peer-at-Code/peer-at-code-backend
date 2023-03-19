@@ -2,8 +2,10 @@ package be.jeffcheasey88.peeratcode.model;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Objects;
 import java.util.Set;
+import java.util.SortedSet;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -16,7 +18,7 @@ public class Player implements Comparable<Player> {
 	private String firstname;
 	private String lastname;
 	private String description;
-	private Set<String> groups;
+	private LinkedHashSet<String> groups;
 	private byte[] avatar;
 
 	private int totalScore;
@@ -94,7 +96,7 @@ public class Player implements Comparable<Player> {
 		if (groups == null || groups.isEmpty())
 			groups = null;
 		else
-			this.groups = new HashSet<String>(Arrays.asList(groups.split(",")));
+			this.groups = new LinkedHashSet<String>(Arrays.asList(groups.split(",")));
 	}
 
 	public byte[] getAvatar() {
