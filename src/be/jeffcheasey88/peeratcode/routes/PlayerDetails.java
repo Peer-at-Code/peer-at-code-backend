@@ -44,7 +44,7 @@ public class PlayerDetails implements Response {
 			playerJSON.put("score", player.getTotalScore());
 			playerJSON.put("completions", player.getTotalCompletion());
 			playerJSON.put("tries", player.getTotalTries());
-			playerJSON.put("badges", player.getBadges());
+			if (player.getBadges().size() > 0) playerJSON.put("badges", player.getJsonBadges());
 			//if(player.getAvatar() != null) playerJSON.put("avatar", Base64.getEncoder().encodeToString(player.getAvatar()));
 			writer.write(playerJSON.toJSONString().replace("\\", ""));
 		} else {

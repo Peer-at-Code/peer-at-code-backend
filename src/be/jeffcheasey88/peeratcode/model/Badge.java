@@ -4,9 +4,12 @@ public class Badge {
 	private String name;
 	private byte[] logo;
 	private int level;
-	
+
+	public Badge(String name, int level) {
+		this(name, null, level);
+	}
+
 	public Badge(String name, byte[] logo, int level) {
-		super();
 		this.name = name;
 		this.logo = logo;
 		this.level = level;
@@ -35,6 +38,5 @@ public class Badge {
 	public void setLevel(int level) {
 		this.level = level;
 	}
-	
-	
+
 }

@@ -1,11 +1,14 @@
 package be.jeffcheasey88.peeratcode.model;
 
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.SortedSet;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -26,7 +29,7 @@ public class Player implements Comparable<Player> {
 	private int totalCompletion;
 	private int totalTries;
 	
-	private String badges; // To change to a set of model
+	private Set<Badge> badges;
 
 	public Player(String pseudo, String email, String firstname, String lastname, String description) {
 		this(pseudo, email, firstname, lastname, description, null, null);
@@ -41,7 +44,7 @@ public class Player implements Comparable<Player> {
 		this(pseudo, email, firstname, lastname, description, groups, avatar, null);
 	}
 	public Player(String pseudo, String email, String firstname, String lastname, String description, String groups,
-			byte[] avatar, String badges) {
+			byte[] avatar, Set<Badge> badges) {
 		this.pseudo = pseudo;
 		this.email = email;
 		this.firstname = firstname;
@@ -54,7 +57,10 @@ public class Player implements Comparable<Player> {
 		totalCompletion = 0;
 		totalTries = 0;
 		
-		this.badges = null;
+		if (badges != null)
+			this.badges = new HashSet<Badge>(badges);
+		else
+			this.badges = new HashSet<Badge>();
 	}
 
 	public String getPseudo() {
@@ -99,7 +105,7 @@ public class Player implements Comparable<Player> {
 	
 	public void setGroups(String groups) {
 		if (groups == null || groups.isEmpty())
-			groups = null;
+			this.groups = null;
 		else
 			this.groups = new LinkedHashSet<String>(Arrays.asList(groups.split(",")));
 	}
@@ -148,11 +154,28 @@ public class Player implements Comparable<Player> {
 		this.totalTries = totalTries;
 	}
 	
-	public String getBadges() {
+	public Set<Badge> getBadges() {
 		return badges;
 	}
-	public void setBadges(String initBadges) {
-		badges = initBadges;	
+	
+	/**
+	 * SEE SET_TAGS IN PUZZLE
+	 * @return DEATH
+	 */
+	public JSONArray getJsonBadges() {
+		if (badges == null)
+			return null;
+		JSONArray badgesJSON = new JSONArray();
+		for (Badge badge: badges) {
+			JSONObject badgeJSON = new JSONObject();
+			badgeJSON.put("name", badge.getName());
+			byte[] logo = badge.getLogo();
+			if (logo != null)
+				badgeJSON.put("logo", Base64.getEncoder().encodeToString(logo));
+			badgeJSON.put("level", badge.getLevel());
+			badgesJSON.add(badgeJSON);
+		}
+		return badgesJSON;
 	}
 
 	@Override
@@ -171,5 +194,9 @@ public class Player implements Comparable<Player> {
 		}
 
 		return compare;
+	}
+
+	public void addBadge(Badge newBadge) {
+		badges.add(newBadge);
 	}
 }
