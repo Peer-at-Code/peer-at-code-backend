@@ -1,9 +1,11 @@
 package be.jeffcheasey88.peeratcode.model;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.SortedSet;
@@ -21,46 +23,26 @@ public class Player implements Comparable<Player> {
 	private String firstname;
 	private String lastname;
 	private String description;
-	private LinkedHashSet<String> groups;
+	private Set<Group> groups;
 	private byte[] avatar;
 
 	private int rank;
 	private int totalScore;
 	private int totalCompletion;
 	private int totalTries;
-	
+
 	private Set<Badge> badges;
 
 	public Player(String pseudo, String email, String firstname, String lastname, String description) {
-		this(pseudo, email, firstname, lastname, description, null, null);
-	}
-	
-	public Player(String pseudo, String email, String firstname, String lastname, String description, String groups) {
-		this(pseudo, email, firstname, lastname, description, groups, null);
-	}
-
-	public Player(String pseudo, String email, String firstname, String lastname, String description, String groups,
-			byte[] avatar) {
-		this(pseudo, email, firstname, lastname, description, groups, avatar, null);
-	}
-	public Player(String pseudo, String email, String firstname, String lastname, String description, String groups,
-			byte[] avatar, Set<Badge> badges) {
 		this.pseudo = pseudo;
 		this.email = email;
 		this.firstname = firstname;
 		this.lastname = lastname;
 		this.description = description;
-		setGroups(groups);
-		this.avatar = avatar;
 
 		totalScore = 0;
 		totalCompletion = 0;
 		totalTries = 0;
-		
-		if (badges != null)
-			this.badges = new HashSet<Badge>(badges);
-		else
-			this.badges = new HashSet<Badge>();
 	}
 
 	public String getPseudo() {
@@ -83,41 +65,42 @@ public class Player implements Comparable<Player> {
 		return this.description;
 	}
 
-	public Set<String> getGroups() {
+	public Set<Group> getGroups() {
 		return groups;
 	}
-	
+
 	/**
 	 * SEE SET_TAGS IN PUZZLE
+	 * 
 	 * @return DEATH
 	 */
 	public JSONArray getJsonGroups() {
-		if (groups == null)
-			return null;
-		JSONArray groupsJSON = new JSONArray();
-		for (String group: groups) {
-			JSONObject groupJSON = new JSONObject();
-			groupJSON.put("name", group);
-			groupsJSON.add(groupJSON);
+		if (groups != null) {
+			JSONArray groupsJSON = new JSONArray();
+			for (Group group : groups) {
+				groupsJSON.add(group.getJson());
+			}
+			return groupsJSON;
 		}
-		return groupsJSON;
+		return null;
 	}
-	
-	public void setGroups(String groups) {
-		if (groups == null || groups.isEmpty())
-			this.groups = null;
-		else
-			this.groups = new LinkedHashSet<String>(Arrays.asList(groups.split(",")));
+
+	public void addGroup(Group newGroup) {
+		if (newGroup != null) {
+			if (this.groups == null)
+				this.groups = new HashSet<Group>();
+			this.groups.add(newGroup);
+		}
 	}
 
 	public byte[] getAvatar() {
 		return this.avatar;
 	}
-	
+
 	public void setAvatar(byte[] newAvatar) {
 		avatar = newAvatar;
 	}
-	
+
 	public String getPathToSourceCode() {
 		return String.format(PATH_TO_CODE, pseudo);
 	}
@@ -129,7 +112,7 @@ public class Player implements Comparable<Player> {
 	public void setRank(int newRank) {
 		rank = newRank;
 	}
-	
+
 	public int getTotalScore() {
 		return totalScore;
 	}
@@ -153,20 +136,21 @@ public class Player implements Comparable<Player> {
 	public void setTotalTries(int totalTries) {
 		this.totalTries = totalTries;
 	}
-	
+
 	public Set<Badge> getBadges() {
 		return badges;
 	}
-	
+
 	/**
 	 * SEE SET_TAGS IN PUZZLE
+	 * 
 	 * @return DEATH
 	 */
 	public JSONArray getJsonBadges() {
 		if (badges == null)
 			return null;
 		JSONArray badgesJSON = new JSONArray();
-		for (Badge badge: badges) {
+		for (Badge badge : badges) {
 			JSONObject badgeJSON = new JSONObject();
 			badgeJSON.put("name", badge.getName());
 			byte[] logo = badge.getLogo();
@@ -178,6 +162,14 @@ public class Player implements Comparable<Player> {
 		return badgesJSON;
 	}
 
+	public void addBadge(Badge newBadge) {
+		if (newBadge != null) {
+			if (badges == null)
+				badges = new HashSet<Badge>();
+			badges.add(newBadge);
+		}
+	}
+
 	@Override
 	public int compareTo(Player other) {
 		if (this == other)
@@ -186,17 +178,32 @@ public class Player implements Comparable<Player> {
 			return -1;
 		int compare = Integer.compare(other.getTotalScore(), totalScore);
 		if (compare == 0) {
-			compare =  Integer.compare(other.getTotalCompletion(), totalCompletion);
+			compare = Integer.compare(other.getTotalCompletion(), totalCompletion);
 			if (compare == 0) {
-				compare =  Integer.compare(totalTries, other.getTotalTries());
-				if(compare == 0) compare = other.getPseudo().compareTo(pseudo);
+				compare = Integer.compare(totalTries, other.getTotalTries());
+				if (compare == 0)
+					compare = other.getPseudo().compareTo(pseudo);
 			}
 		}
 
 		return compare;
 	}
 
-	public void addBadge(Badge newBadge) {
-		badges.add(newBadge);
+	@Override
+	public int hashCode() {
+		return Objects.hash(email, pseudo);
 	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Player other = (Player) obj;
+		return Objects.equals(email, other.email) && Objects.equals(pseudo, other.pseudo);
+	}
+
 }
