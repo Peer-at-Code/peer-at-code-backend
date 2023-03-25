@@ -17,7 +17,7 @@ public class Class {
 	private List<Function>functions;
 	
 	public Class(){}
-
+	
 	public int parse(String content) throws Exception{
 		Matcher matcher = PATTERN.matcher(content);
 		matcher.matches();
