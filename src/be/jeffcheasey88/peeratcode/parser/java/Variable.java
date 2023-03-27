@@ -29,8 +29,6 @@ public class Variable {
 	//int i =j=k=l=4;
 	
 	public int parse(String content) throws Exception{
-		System.out.println("Variable.parse");
-		System.out.println(content);
 		Matcher matcher = PATTERN.matcher(content);
 		matcher.matches();
 		
@@ -39,7 +37,11 @@ public class Variable {
 		boolean hasEquals = false;
 		boolean fromMinus = false;
 		String body = matcher.group(2);
-		while(true){
+		while(body.length() > 0){
+			while(indexOf(body, "\\s+") == 0){
+				body = body.substring(1);
+				offset++;
+			}
 			int space = indexOf(body, "\\s+");
 			int equals = indexOf(body, "=");
 			int quote = indexOf(body,",");
@@ -49,33 +51,17 @@ public class Variable {
 			
 			int min = min(space, equals, quote, quotes, minus);
 			String value = body.substring(0,min);
-			System.out.println("'"+value+"'");
 			if(hasEquals){
-				if(value.isEmpty()){
-					do {
-						body = body.substring(1);
-						offset++;
-					}while(indexOf(body, "\\s+") == 0);
-					continue;
-				}
 				this.value = new Value(value);
 				body = body.substring(value.length()+1);
 				offset+=value.length()+1;
 				break;
 			}else if(fromMinus){
-				System.out.println("fromMinus "+value);
 				this.name = value;
 				body = body.substring(value.length()+1);
 				offset+=value.length()+1;
 				break;
 			} else if(min == space){
-				if(value.isEmpty()){
-					do {
-						body = body.substring(1);
-						offset++;
-					}while(indexOf(body, "\\s+") == 0);
-					continue;
-				}
 				int mod = JavaParser.getModifier(value);
 				if(mod > 0){
 					this.modifier+=mod;
@@ -95,7 +81,6 @@ public class Variable {
 					offset+=value.length()+1;
 			}else if(min == minus){
 				value = value+"<";
-				System.out.println("MINUS");
 				int maxus = 1;
 				while(maxus > 0){
 					char current = body.charAt(value.length());
@@ -115,22 +100,22 @@ public class Variable {
 					offset++;
 				}
 				fromMinus = true;
-				System.out.println("fromMinus on "+body);
-			}else if(min == quote){
+			}else if(min == quote || min == quotes){
 				if(this.name != null) break;
 				this.name = value;
 				body = body.substring(value.length());
 				offset+=value.length();
+				
+				if(min == quotes){
+					body = body.substring(1);
+					offset+=1;
+				}
 				break;
 			}else {
 				offset+=value.length()+1;
 				break;
 			}
 		}
-		
-		System.out.println("-------------");
-		show(0);
-		System.out.println("-------------");
 		
 		return offset;
 	}
@@ -166,8 +151,7 @@ public class Variable {
 	public void show(int tab){
 		String start = "";
 		for(int i = 0; i < tab; i++) start+="\t";
-		System.out.println("type="+type+" | name="+name);
-		System.out.println(start+Modifier.toString(modifier)+" "+type+" "+name+";");
+		System.out.println(start+Modifier.toString(modifier)+" "+type+" "+name+(value == null ? ";":"="+value+";"));
 	}
 	
 	public static class Value extends Variable{
@@ -179,6 +163,11 @@ public class Variable {
 		}
 		
 		public String value(){
+			return this.value;
+		}
+		
+		@Override
+		public String toString(){
 			return this.value;
 		}
 	}

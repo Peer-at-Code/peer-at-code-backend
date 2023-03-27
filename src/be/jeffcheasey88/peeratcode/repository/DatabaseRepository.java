@@ -24,27 +24,6 @@ import be.jeffcheasey88.peeratcode.model.Player;
 import be.jeffcheasey88.peeratcode.model.Puzzle;
 
 public class DatabaseRepository {
-	private static final String SPECIFIC_PUZZLE_QUERY = "SELECT p.*, np.origin, GROUP_CONCAT(t.name) AS tags FROM puzzles p LEFT JOIN nextPart np ON p.id_puzzle = np.next LEFT JOIN containsTags ct ON ct.fk_puzzle = p.id_puzzle LEFT JOIN tags t ON t.id_tag = ct.fk_tag WHERE p.id_puzzle = ? GROUP BY p.id_puzzle";
-	private static final String SPECIFIC_CHAPTER_QUERY = "SELECT * FROM chapters WHERE id_chapter = ?";
-	private static final String PUZZLES_IN_CHAPTER_QUERY = "SELECT p.*, GROUP_CONCAT(t.name) AS tags FROM puzzles p LEFT JOIN containsTags ct ON ct.fk_puzzle = p.id_puzzle LEFT JOIN tags t ON t.id_tag = ct.fk_tag WHERE fk_chapter = ? GROUP BY p.id_puzzle";
-	private static final String ALL_CHAPTERS_QUERY = "SELECT * FROM chapters WHERE id_chapter > 0";
-	private static final String CHECK_PSEUDO_AVAILABLE_QUERY = "SELECT * FROM players WHERE pseudo = ?";
-	private static final String CHECK_EMAIL_AVAILABLE_QUERY = "SELECT * FROM players WHERE email = ?";
-	private static final String REGISTER_QUERY = "INSERT INTO players (pseudo, email, passwd, firstname, lastname, description, sgroup, avatar) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-	private static final String CHECK_PASSWORD = "SELECT id_player, passwd FROM players WHERE pseudo=?";
-	private static final String SCORE = "SELECT score FROM completions WHERE fk_player = ? AND fk_puzzle = ?";
-	private static final String GET_COMPLETION = "SELECT id_completion, tries, fileName, score FROM completions WHERE fk_puzzle = ? AND fk_player = ?";
-	private static final String GET_PLAYER_SIMPLE = "SELECT pseudo, email, firstname, lastname, description FROM players WHERE id_player = ?";
-	private static final String GET_PLAYER_DETAILS = "SELECT p.*, scores.score, scores.completions, scores.tries, scores.rank, g.* FROM players p, (SELECT fk_player, SUM(c.score) AS score, COUNT(c.id_completion) AS completions, SUM(c.tries) AS tries, rank() over(ORDER BY score DESC) AS rank FROM completions c GROUP BY c.fk_player) AS scores LEFT JOIN containsGroups cg ON scores.fk_player = cg.fk_player LEFT JOIN groups g ON cg.fk_group = g.id_group WHERE p.id_player = scores.fk_player AND ";
-	private static final String GET_PLAYER_DETAILS_BY_ID = GET_PLAYER_DETAILS
-			+ " p.id_player = ? ORDER BY g.fk_chapter, g.fk_puzzle;";
-	private static final String GET_PLAYER_DETAILS_BY_PSEUDO = GET_PLAYER_DETAILS
-			+ "p.pseudo = ? ORDER BY g.fk_chapter, g.fk_puzzle;";
-	private static final String ALL_PLAYERS_FOR_LEADERBOARD = "select p.*, scores.*, g.* from players p ,(SELECT fk_player, SUM(c.score) AS score, COUNT(c.id_completion) AS completions, SUM(c.tries) AS tries, rank() over(ORDER BY score DESC) AS rank FROM completions c GROUP BY c.fk_player) AS scores LEFT JOIN containsGroups cg ON scores.fk_player = cg.fk_player LEFT JOIN groups g ON cg.fk_group = g.id_group  WHERE p.id_player = scores.fk_player ORDER BY g.fk_chapter, g.fk_puzzle";
-	private static final String GET_BADGE = "SELECT * FROM badges WHERE id_badge = ?";
-	private static final String GET_BADGES_OF_PLAYER = "SELECT * FROM badges b LEFT JOIN containsBadges cb ON cb.fk_badge = b.id_badge WHERE cb.fk_player = ?";
-	private static final String INSERT_COMPLETION = "INSERT INTO completions (fk_puzzle, fk_player, tries, code, fileName, score) values (?, ?, ?, ?, ?, ?)";
-	private static final String UPDATE_COMPLETION = "UPDATE completions SET tries = ?, filename = ?, score = ? WHERE fk_puzzle = ? AND fk_player = ?";
 
 	private Connection con;
 	private Configuration config;
@@ -101,9 +80,7 @@ public class DatabaseRepository {
 	}
 
 	private Group makeGroup(ResultSet result) throws SQLException {
-		Group gr = new Group(result.getString("name"), result.getInt("fk_chapter"), result.getInt("fk_puzzle"));
-
-		return gr;
+		return new Group(result.getString("name"), result.getInt("fk_chapter"), result.getInt("fk_puzzle"));
 	}
 
 	private Badge makeBadge(ResultSet rs) throws SQLException {
@@ -125,7 +102,7 @@ public class DatabaseRepository {
 	private List<Puzzle> getPuzzlesInChapter(int id) throws SQLException {
 		List<Puzzle> puzzles = new ArrayList<>();
 		ensureConnection();
-		PreparedStatement puzzleStmt = con.prepareStatement(PUZZLES_IN_CHAPTER_QUERY);
+		PreparedStatement puzzleStmt = DatabaseQuery.PUZZLES_IN_CHAPTER_QUERY.prepare(this.con);
 		puzzleStmt.setInt(1, id);
 		ResultSet puzzleResult = puzzleStmt.executeQuery();
 		while (puzzleResult.next()) {
@@ -143,7 +120,7 @@ public class DatabaseRepository {
 	public Puzzle getPuzzle(int id) {
 		try {
 			ensureConnection();
-			PreparedStatement puzzleStmt = con.prepareStatement(SPECIFIC_PUZZLE_QUERY);
+			PreparedStatement puzzleStmt = DatabaseQuery.SPECIFIC_PUZZLE_QUERY.prepare(this.con);
 			puzzleStmt.setInt(1, id);
 			ResultSet puzzleResult = puzzleStmt.executeQuery();
 			if (puzzleResult.next()) {
@@ -155,10 +132,10 @@ public class DatabaseRepository {
 		return null;
 	}
 
-	public int getScore(int user, int puzzle) {
+	public int getScore(int user, int puzzle){
 		try {
 			ensureConnection();
-			PreparedStatement stmt = this.con.prepareStatement(SCORE);
+			PreparedStatement stmt = DatabaseQuery.SCORE.prepare(this.con);
 			stmt.setInt(1, user);
 			stmt.setInt(2, puzzle);
 
@@ -173,7 +150,7 @@ public class DatabaseRepository {
 
 	public Completion getCompletion(int playerId, int puzzleId) {
 		try {
-			PreparedStatement completionsStmt = con.prepareStatement(GET_COMPLETION);
+			PreparedStatement completionsStmt = DatabaseQuery.GET_COMPLETION.prepare(this.con);
 			completionsStmt.setInt(1, puzzleId);
 			completionsStmt.setInt(2, playerId);
 			ResultSet result = completionsStmt.executeQuery();
@@ -188,7 +165,7 @@ public class DatabaseRepository {
 
 	public Player getPlayer(int idPlayer) {
 		try {
-			PreparedStatement completionsStmt = con.prepareStatement(GET_PLAYER_SIMPLE);
+			PreparedStatement completionsStmt = DatabaseQuery.GET_PLAYER_SIMPLE.prepare(this.con);
 			completionsStmt.setInt(1, idPlayer);
 			ResultSet result = completionsStmt.executeQuery();
 			if (result.next()) {
@@ -213,10 +190,10 @@ public class DatabaseRepository {
 			ensureConnection();
 			PreparedStatement completionsStmt;
 			if (pseudo != null) {
-				completionsStmt = con.prepareStatement(GET_PLAYER_DETAILS_BY_PSEUDO);
+				completionsStmt = DatabaseQuery.GET_PLAYER_DETAILS_BY_PSEUDO.prepare(this.con);
 				completionsStmt.setString(1, pseudo);
 			} else {
-				completionsStmt = con.prepareStatement(GET_PLAYER_DETAILS_BY_ID);
+				completionsStmt = DatabaseQuery.GET_PLAYER_DETAILS_BY_ID.prepare(this.con);
 				completionsStmt.setInt(1, id);
 			}
 			ResultSet result = completionsStmt.executeQuery();
@@ -224,7 +201,7 @@ public class DatabaseRepository {
 			while (result.next()) {
 				if (player == null) {
 					player = makePlayer(result);
-					completionsStmt = con.prepareStatement(GET_BADGES_OF_PLAYER);
+					completionsStmt = DatabaseQuery.GET_BADGES_OF_PLAYER.prepare(this.con);
 					completionsStmt.setInt(1, result.getInt("id_player"));
 					ResultSet resultBadges = completionsStmt.executeQuery();
 					while (resultBadges.next()) {
@@ -244,7 +221,7 @@ public class DatabaseRepository {
 	public SortedSet<Player> getAllPlayerForLeaderboard() {
 		try {
 			ensureConnection();
-			PreparedStatement playersStmt = con.prepareStatement(ALL_PLAYERS_FOR_LEADERBOARD);
+			PreparedStatement playersStmt = DatabaseQuery.ALL_PLAYERS_FOR_LEADERBOARD.prepare(this.con);
 			ResultSet result = playersStmt.executeQuery();
 			ArrayList<Player> players = new ArrayList<Player>();
 			Player tmpPlayer;
@@ -266,7 +243,7 @@ public class DatabaseRepository {
 	public Badge getBadge(int badgeId) {
 		try {
 			ensureConnection();
-			PreparedStatement completionsStmt = con.prepareStatement(GET_BADGE);
+			PreparedStatement completionsStmt = DatabaseQuery.GET_BADGE.prepare(this.con);
 			completionsStmt.setInt(1, badgeId);
 			ResultSet result = completionsStmt.executeQuery();
 			if (result.next()) {
@@ -287,7 +264,7 @@ public class DatabaseRepository {
 	public Chapter getChapter(int id) {
 		try {
 			ensureConnection();
-			PreparedStatement chapterStmt = con.prepareStatement(SPECIFIC_CHAPTER_QUERY);
+			PreparedStatement chapterStmt = DatabaseQuery.SPECIFIC_CHAPTER_QUERY.prepare(this.con);
 			chapterStmt.setInt(1, id);
 			ResultSet chapterResult = chapterStmt.executeQuery();
 			if (chapterResult.next()) {
@@ -311,7 +288,7 @@ public class DatabaseRepository {
 		try {
 			List<Chapter> chapterList = new ArrayList<>();
 			ensureConnection();
-			PreparedStatement chapterStmt = con.prepareStatement(ALL_CHAPTERS_QUERY);
+			PreparedStatement chapterStmt = DatabaseQuery.ALL_CHAPTERS_QUERY.prepare(this.con);
 			ResultSet chapterResult = chapterStmt.executeQuery();
 			while (chapterResult.next()) {
 				Chapter chapter = makeChapter(chapterResult);
@@ -324,6 +301,19 @@ public class DatabaseRepository {
 		}
 		return null;
 	}
+	
+	public List<Group> getAllGroups(){
+		try {
+			List<Group> list = new ArrayList<>();
+			PreparedStatement stmt = DatabaseQuery.ALL_GROUPS.prepare(this.con);
+			ResultSet groupResult = stmt.executeQuery();
+			while(groupResult.next()) list.add(makeGroup(groupResult));
+			return list;
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		return null;
+	}
 
 	/**
 	 * Check if a pseudo is available
@@ -332,7 +322,7 @@ public class DatabaseRepository {
 	 * @return True if the pseudo is available, false if it's already taken
 	 */
 	public boolean checkPseudoAvailability(String pseudo) {
-		return checkAvailability(pseudo, CHECK_PSEUDO_AVAILABLE_QUERY);
+		return checkAvailability(pseudo, DatabaseQuery.CHECK_PSEUDO_AVAILABLE_QUERY.toString());
 	}
 
 	/**
@@ -342,7 +332,7 @@ public class DatabaseRepository {
 	 * @return True if the email is available, false if it's already taken
 	 */
 	public boolean checkEmailAvailability(String email) {
-		return checkAvailability(email, CHECK_EMAIL_AVAILABLE_QUERY);
+		return checkAvailability(email, DatabaseQuery.CHECK_EMAIL_AVAILABLE_QUERY.toString());
 	}
 
 	private boolean checkAvailability(String queriedString, String correspondingQuery) {
@@ -376,7 +366,7 @@ public class DatabaseRepository {
 		Hash hash = Password.hash(password).withArgon2();
 		try {
 			ensureConnection();
-			PreparedStatement statement = con.prepareStatement(REGISTER_QUERY, Statement.RETURN_GENERATED_KEYS);
+			PreparedStatement statement = con.prepareStatement(DatabaseQuery.REGISTER_QUERY.toString(), Statement.RETURN_GENERATED_KEYS);
 			statement.setString(1, pseudo);
 			statement.setString(2, email);
 			statement.setString(3, hash.getResult());
@@ -406,7 +396,7 @@ public class DatabaseRepository {
 	public int login(String username, String password) {
 		try {
 			ensureConnection();
-			PreparedStatement statement = con.prepareStatement(CHECK_PASSWORD);
+			PreparedStatement statement = con.prepareStatement(DatabaseQuery.CHECK_PASSWORD.toString());DatabaseQuery.PUZZLES_IN_CHAPTER_QUERY.prepare(this.con);
 			statement.setString(1, username);
 			ResultSet result = statement.executeQuery();
 			if (result.next()) {
@@ -438,7 +428,7 @@ public class DatabaseRepository {
 
 	private void insertCompletion(Completion newCompletion) throws SQLException {
 		// Insert completions
-		PreparedStatement statement = con.prepareStatement(INSERT_COMPLETION);
+		PreparedStatement statement = DatabaseQuery.INSERT_COMPLETION.prepare(this.con);
 		statement.setInt(1, newCompletion.getPuzzleId());
 		statement.setInt(2, newCompletion.getPlayerId());
 		statement.setInt(3, newCompletion.getTries());
@@ -450,7 +440,7 @@ public class DatabaseRepository {
 
 	private void updateCompletion(Completion completionToUpdate) throws SQLException {
 		// Update completions
-		PreparedStatement statement = con.prepareStatement(UPDATE_COMPLETION);
+		PreparedStatement statement = DatabaseQuery.UPDATE_COMPLETION.prepare(this.con);
 		statement.setInt(1, completionToUpdate.getTries());
 		statement.setString(2, completionToUpdate.getFileName());
 		statement.setInt(3, completionToUpdate.getScore());

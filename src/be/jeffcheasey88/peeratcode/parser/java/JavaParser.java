@@ -10,11 +10,12 @@ import java.util.List;
 public class JavaParser {
 	
 	public static void main(String[] args) throws Exception {
-		File file = new File("C:\\Users\\jeffc\\eclipse-workspace\\JavaBenjaminCompiler\\src\\be\\jeffcheasey88\\parser\\rework\\Import.java");
+		File file = new File("C:\\Users\\jeffc\\eclipse-workspace\\peer-at-code-backend\\src\\be\\jeffcheasey88\\peeratcode\\parser\\java\\Import.java");
 		BufferedReader reader = new BufferedReader(new FileReader(file));
 		
 		JavaParser parser = new JavaParser(reader);
 		parser.parse();
+		System.out.println("SHOW-----------------");
 		parser.show();
 	}
 	

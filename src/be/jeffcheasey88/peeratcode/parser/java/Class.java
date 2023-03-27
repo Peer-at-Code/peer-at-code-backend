@@ -38,14 +38,6 @@ public class Class {
 			int braces = indexOf(content,"\\{");
 			int equals = indexOf(content,"=");
 			if(quotes < braces && quotes < equals){
-				Variable variable = new Variable();
-				int index = variable.parse(content);
-				this.vars.add(variable);
-				content = content.substring(index);
-			}else if(equals < braces){
-				//variable with value
-				System.out.println(content);
-				System.out.println("equals < braces");
 				boolean quote = false;
 				Variable last = null;
 				do {
@@ -59,12 +51,33 @@ public class Class {
 						last = variable;
 					}
 				}while(quote);
-				break;
+			}else if(equals < braces){
+				//variable with value
+				boolean quote = false;
+				Variable last = null;
+				do {
+					Variable variable = (last == null) ? new Variable() : new Variable(last.getModifier(), last.getType());
+					int index = variable.parse(content);
+					this.vars.add(variable);
+					content = content.substring(index);
+					quote = content.startsWith(",");
+					if(quote) {
+						content = content.substring(1);
+						last = variable;
+					}else if(indexOf(content, "=") < indexOf(content, ";")){
+						Operation operation = new Operation();
+						index = operation.parse(content);
+						content = content.substring(index);
+						break;
+					}
+				}while(quote);
 			}else{
+				System.out.println("Function "+content);
 				Function func = new Function();
 				int index = func.parse(content);
 				this.functions.add(func);
 				content = content.substring(index);
+				System.out.println("End "+content);
 			}
 		}
 		
@@ -90,6 +103,8 @@ public class Class {
 	public void show(){
 		System.out.println(Modifier.toString(modifier)+" "+this.name+"{");
 		for(Variable v : this.vars) v.show(1);
+		System.out.println();
+		for(Function f : this.functions) f.show(1);
 		System.out.println("}");
 	}
 }

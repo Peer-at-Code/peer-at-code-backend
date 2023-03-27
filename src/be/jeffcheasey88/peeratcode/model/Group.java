@@ -37,7 +37,7 @@ public class Group {
 		this.linkToPuzzle = linkToPuzzle;
 	}
 
-	public JSONObject getJson() {
+	public JSONObject toJson() {
 		JSONObject groupJSON = new JSONObject();
 		groupJSON.put("name", name);
 		if (linkToChapter > 0) groupJSON.put("chapter", linkToChapter);

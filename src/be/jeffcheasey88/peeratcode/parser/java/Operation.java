@@ -9,18 +9,21 @@ public class Operation {
 	
 	private String tmp;
 	
-	public Operation(){
-		
-	}
+	public Operation(){}
 	
 	public int parse(String content) throws Exception{
 		Matcher matcher = VARIABLE_PATTERN.matcher(content);
 		if(matcher.matches()){
 			this.tmp = matcher.group(2);
-			System.out.println("parsed "+tmp);
 			return matcher.group(1).length()+1;
 		}
 		return 0;
+	}
+	
+	public void show(int tab){
+		String start = "";
+		for(int i = 0; i < tab; i++) start+="\t";
+		System.out.println(start+tmp+";");
 	}
 
 }

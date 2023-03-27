@@ -78,7 +78,7 @@ public class Player implements Comparable<Player> {
 		if (groups != null) {
 			JSONArray groupsJSON = new JSONArray();
 			for (Group group : groups) {
-				groupsJSON.add(group.getJson());
+				groupsJSON.add(group.toJson());
 			}
 			return groupsJSON;
 		}
