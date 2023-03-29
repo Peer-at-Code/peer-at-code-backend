@@ -132,7 +132,7 @@ public class DatabaseRepository {
 		return null;
 	}
 
-	public int getScore(int user, int puzzle){
+	public int getScore(int user, int puzzle) {
 		try {
 			ensureConnection();
 			PreparedStatement stmt = DatabaseQuery.SCORE.prepare(this.con);
@@ -301,15 +301,16 @@ public class DatabaseRepository {
 		}
 		return null;
 	}
-	
-	public List<Group> getAllGroups(){
+
+	public List<Group> getAllGroups() {
 		try {
 			List<Group> list = new ArrayList<>();
 			PreparedStatement stmt = DatabaseQuery.ALL_GROUPS.prepare(this.con);
 			ResultSet groupResult = stmt.executeQuery();
-			while(groupResult.next()) list.add(makeGroup(groupResult));
+			while (groupResult.next())
+				list.add(makeGroup(groupResult));
 			return list;
-		}catch(Exception e){
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return null;
@@ -366,19 +367,34 @@ public class DatabaseRepository {
 		Hash hash = Password.hash(password).withArgon2();
 		try {
 			ensureConnection();
-			PreparedStatement statement = con.prepareStatement(DatabaseQuery.REGISTER_QUERY.toString(), Statement.RETURN_GENERATED_KEYS);
-			statement.setString(1, pseudo);
-			statement.setString(2, email);
-			statement.setString(3, hash.getResult());
-			statement.setString(4, firstname);
-			statement.setString(5, lastname);
-			statement.setString(6, description);
-			statement.setString(7, sgroup);
-			statement.setString(8, avatar);
-			if (statement.executeUpdate() == 1) {
-				ResultSet inserted = statement.getGeneratedKeys();
-				if (inserted.next())
-					return inserted.getInt(1);
+			con.setAutoCommit(false);
+			try (PreparedStatement playerStatement = con.prepareStatement(DatabaseQuery.REGISTER_QUERY.toString(),
+					Statement.RETURN_GENERATED_KEYS)) {
+				playerStatement.setString(1, pseudo);
+				playerStatement.setString(2, email);
+				playerStatement.setString(3, hash.getResult());
+				playerStatement.setString(4, firstname);
+				playerStatement.setString(5, lastname);
+				playerStatement.setString(6, description);
+				playerStatement.setString(7, avatar);
+				if (playerStatement.executeUpdate() == 1) {
+					ResultSet inserted = playerStatement.getGeneratedKeys();
+					if (inserted.next()) {
+						int newPlayerId = inserted.getInt(1);
+						try (PreparedStatement containsGroupsStatement = con.prepareStatement(DatabaseQuery.REGISTER_PLAYER_IN_EXISTING_GROUP.toString())) {
+							containsGroupsStatement.setInt(1, newPlayerId);
+							containsGroupsStatement.setString(2, sgroup);
+							containsGroupsStatement.executeUpdate();
+							con.commit();
+							con.setAutoCommit(true);
+							return newPlayerId;
+						}
+					}
+				}
+			}
+			catch (SQLException e) {
+			    con.rollback();
+			    con.setAutoCommit(true);
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -396,7 +412,8 @@ public class DatabaseRepository {
 	public int login(String username, String password) {
 		try {
 			ensureConnection();
-			PreparedStatement statement = con.prepareStatement(DatabaseQuery.CHECK_PASSWORD.toString());DatabaseQuery.PUZZLES_IN_CHAPTER_QUERY.prepare(this.con);
+			PreparedStatement statement = con.prepareStatement(DatabaseQuery.CHECK_PASSWORD.toString());
+			DatabaseQuery.PUZZLES_IN_CHAPTER_QUERY.prepare(this.con);
 			statement.setString(1, username);
 			ResultSet result = statement.executeQuery();
 			if (result.next()) {
