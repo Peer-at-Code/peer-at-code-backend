@@ -91,10 +91,8 @@ public class DatabaseRepository {
 		// Found on StackOverflow
 		ResultSetMetaData rsmd = rs.getMetaData();
 		int columns = rsmd.getColumnCount();
-		for (int x = 1; x <= columns; x++) {
-			if (columnName.equals(rsmd.getColumnName(x))) {
-				return true;
-			}
+		for(int x = 1; x <= columns; x++){
+			if(columnName.equals(rsmd.getColumnName(x))) return true;
 		}
 		return false;
 	}
@@ -304,6 +302,7 @@ public class DatabaseRepository {
 
 	public List<Group> getAllGroups() {
 		try {
+			ensureConnection();
 			List<Group> list = new ArrayList<>();
 			PreparedStatement stmt = DatabaseQuery.ALL_GROUPS.prepare(this.con);
 			ResultSet groupResult = stmt.executeQuery();
@@ -453,6 +452,18 @@ public class DatabaseRepository {
 		statement.setString(5, newCompletion.getFileName());
 		statement.setInt(6, newCompletion.getScore());
 		statement.executeUpdate();
+	}
+	
+	public boolean insertGroup(Group group){
+		try {
+			ensureConnection();
+			PreparedStatement statement = DatabaseQuery.INSERT_GROUP.prepare(this.con);
+			statement.setString(1, group.getName());
+			statement.setInt(2, group.getLinkToChapter());
+			statement.setInt(3, group.getLinkToPuzzle());
+			return statement.executeUpdate() >= 0;
+		}catch(Exception e){}
+		return false;
 	}
 
 	private void updateCompletion(Completion completionToUpdate) throws SQLException {

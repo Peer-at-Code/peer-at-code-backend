@@ -22,6 +22,7 @@ import be.jeffcheasey88.peeratcode.routes.PuzzleElement;
 import be.jeffcheasey88.peeratcode.routes.PuzzleResponse;
 import be.jeffcheasey88.peeratcode.routes.Register;
 import be.jeffcheasey88.peeratcode.routes.Result;
+import be.jeffcheasey88.peeratcode.routes.groups.CreateGroup;
 import be.jeffcheasey88.peeratcode.routes.groups.GroupList;
 import be.jeffcheasey88.peeratcode.webserver.Client;
 import be.jeffcheasey88.peeratcode.webserver.HttpReader;
@@ -80,6 +81,7 @@ public class Main {
 		router.register(new BadgeDetails(router.getDataBase()));
 		
 		router.register(new GroupList(router.getDataBase()));
+		router.register(new CreateGroup(router.getDataBase()));
 	}
 
 	private static void startWebServer(Configuration config, Router router) throws IOException {

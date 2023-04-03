@@ -2,7 +2,6 @@ package be.jeffcheasey88.peeratcode.routes.groups;
 
 import java.util.regex.Matcher;
 
-import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
 import be.jeffcheasey88.peeratcode.model.Group;
@@ -14,21 +13,24 @@ import be.jeffcheasey88.peeratcode.webserver.Response;
 import be.jeffcheasey88.peeratcode.webserver.Route;
 import be.jeffcheasey88.peeratcode.webserver.User;
 
-public class GroupList implements Response{
+public class CreateGroup implements Response{
 	
 	private DatabaseRepository repo;
 	
-	public GroupList(DatabaseRepository repo){
+	public CreateGroup(DatabaseRepository repo){
 		this.repo = repo;
 	}
 
-	@Route(path = "^\\/groups$", needLogin = true)
+	@Route(path = "^\\/groupCreate$", type = "POST", needLogin = true)
 	@Override
 	public void exec(Matcher matcher, User user, HttpReader reader, HttpWriter writer) throws Exception {
-		HttpUtil.responseHeaders(writer, 200, "Access-Control-Allow-Origin: *");
-		JSONArray result = new JSONArray();
-		for(Group group : this.repo.getAllGroups()) result.add(group.toJson());
-		writer.write(result.toJSONString());
+		HttpUtil.skipHeaders(reader);
+		
+		if(this.repo.insertGroup(new Group((JSONObject)HttpUtil.readJson(reader)))){
+			HttpUtil.responseHeaders(writer, 200, "Access-Control-Allow-Origin: *");
+		}else{
+			HttpUtil.responseHeaders(writer, 403, "Access-Control-Allow-Origin: *");
+		}
 	}
 
 }

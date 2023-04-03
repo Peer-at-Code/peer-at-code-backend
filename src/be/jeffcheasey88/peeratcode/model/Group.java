@@ -7,6 +7,12 @@ public class Group {
 	private int linkToChapter;
 	private int linkToPuzzle;
 	
+	public Group(JSONObject json){
+		this.name = (String)json.get("name");
+		this.linkToChapter = ((Number)json.get("chapter")).intValue();
+		this.linkToPuzzle = ((Number)json.get("puzzle")).intValue();
+	}
+	
 	public Group(String name, int initChap, int initPuzz) {
 		this.name = name;
 		this.linkToChapter = initChap;
